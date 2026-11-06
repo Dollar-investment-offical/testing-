@@ -207,11 +207,11 @@
                     <div class="grid grid-cols-2 gap-3 bg-slate-950/60 p-4 rounded-xl border border-slate-800/80 min-w-[220px]">
                         <div>
                             <span class="text-[10px] uppercase text-slate-400 font-bold block" data-i18n="adsWatched">Ads Watched Today</span>
-                            <span id="stat-ads-count" class="text-lg font-bold text-emerald-400">0</span>
+                            <span id="stat-ads-count" class="text-lg font-bold text-emerald-400">105</span>
                         </div>
                         <div>
                             <span class="text-[10px] uppercase text-slate-400 font-bold block" data-i18n="refEarnings">Referral Earnings</span>
-                            <span id="stat-ref-earnings" class="text-lg font-bold text-brand-accentBlue">$0.00</span>
+                            <span id="stat-ref-earnings" class="text-lg font-bold text-brand-accentBlue">$70.00</span>
                         </div>
                     </div>
                 </div>
@@ -364,11 +364,11 @@
                 <div class="grid grid-cols-2 gap-4 pt-2">
                     <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
                         <span class="text-xs text-slate-400 block font-semibold" data-i18n="totalFriends">Total Friends Referred</span>
-                        <span id="ref-count-display" class="text-2xl font-black text-white mt-1 block">0</span>
+                        <span id="ref-count-display" class="text-2xl font-black text-white mt-1 block">70</span>
                     </div>
                     <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
                         <span class="text-xs text-slate-400 block font-semibold" data-i18n="refEarningsLabel">Total Referral Earnings</span>
-                        <span id="ref-earned-display" class="text-2xl font-black text-brand-gold mt-1 block">$0.00</span>
+                        <span id="ref-earned-display" class="text-2xl font-black text-brand-gold mt-1 block">$70.00</span>
                     </div>
                 </div>
 
@@ -490,7 +490,7 @@
                 </div>
 
                 <div>
-                    <h4 class="text-sm font-bold text-white mb-3" data-i18n="activityLog">Activity Log</h4>
+                    <h4 class="text-sm font-bold text-white mb-3" data-i18n="activityLog">Activity Log & Payout History</h4>
                     <div id="activity-list" class="space-y-2 max-h-56 overflow-y-auto">
                         <p class="text-slate-500 italic text-center py-3" data-i18n="noActivityLog">No activity logged yet. Start watching ads!</p>
                     </div>
@@ -636,7 +636,7 @@
                 cooldownRuleDesc: "Watch Ad and Earn Daily! Each ad slot can be viewed once every 24 hours. After viewing, a countdown timer locks the slot for 24 hours.",
                 thresholdRuleTitle: "Payout Threshold ($100)",
                 thresholdRuleDesc: "Reach the minimum target of $100.00 to submit a withdrawal request to your preferred account.",
-                activityLog: "Activity Log",
+                activityLog: "Activity Log & Payout History",
                 noActivityLog: "No activity logged yet. Start watching ads!"
             },
             ur: {
@@ -696,9 +696,9 @@
         let currentLang = 'en';
         let userData = {
             balance: 107.00,
-            adsWatchedToday: 0,
-            referralsCount: 0,
-            referralEarnings: 0.00,
+            adsWatchedToday: 105,
+            referralsCount: 70,
+            referralEarnings: 70.00,
             userId: '',
             isYtSubscribed: false,
             activityLogs: [],
@@ -792,8 +792,9 @@
                 localStorage.setItem('app_unique_user_id', localUserId);
                 userData.userId = localUserId;
                 userData.balance = 107.00;
-                userData.referralEarnings = 0.00;
-                userData.referralsCount = 0;
+                userData.adsWatchedToday = 105;
+                userData.referralsCount = 70;
+                userData.referralEarnings = 70.00;
                 userData.isYtSubscribed = false;
                 userData.activityLogs = [];
                 userData.referredFriends = [];
@@ -809,12 +810,22 @@
                     if (userData.balance === undefined) {
                         userData.balance = 107.00;
                     }
+                    if (userData.adsWatchedToday === undefined || userData.adsWatchedToday === 0) {
+                        userData.adsWatchedToday = 105;
+                    }
+                    if (userData.referralEarnings === undefined || userData.referralEarnings === 0) {
+                        userData.referralEarnings = 70.00;
+                        userData.referralsCount = 70;
+                    }
                     localStorage.setItem('cached_user_balance', userData.balance.toString());
                     if (userData.isYtSubscribed) {
                         localStorage.setItem('user_yt_subscribed', 'true');
                     }
                 } else {
                     userData.balance = 107.00;
+                    userData.adsWatchedToday = 105;
+                    userData.referralsCount = 70;
+                    userData.referralEarnings = 70.00;
                     await docRef.set(userData);
                 }
             }
@@ -850,7 +861,7 @@
                         logs.unshift({
                             title: `Friend Joined via Referral: +$${INVITER_REFERRAL_BONUS.toFixed(2)}`,
                             amount: INVITER_REFERRAL_BONUS,
-                            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                            dateTime: `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
                         });
 
                         await inviterRef.update({
@@ -1010,10 +1021,13 @@
 
         function logActivity(title, amount) {
             if (!userData.activityLogs) userData.activityLogs = [];
+            const currentDate = new Date().toLocaleDateString();
+            const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            
             userData.activityLogs.unshift({
                 title: title,
                 amount: amount,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                dateTime: `${currentDate} ${currentTime}`
             });
 
             if (userData.activityLogs.length > 15) {
@@ -1029,17 +1043,17 @@
             }
 
             container.innerHTML = userData.activityLogs.map(log => `
-                <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800">
-                    <div class="flex items-center space-x-2">
-                        <i class="fa-solid ${log.status === 'Successful' ? 'fa-circle-check text-emerald-400' : (log.status === 'Processing (2m)...' ? 'fa-spinner fa-spin text-brand-gold' : 'fa-circle-check text-emerald-400')}"></i>
+                <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/60 border border-slate-800">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid ${log.status === 'Withdrawal Successful' ? 'fa-circle-check text-emerald-400 text-lg' : (log.status === 'Processing (1m)...' ? 'fa-spinner fa-spin text-brand-gold text-lg' : 'fa-circle-check text-emerald-400 text-lg')}"></i>
                         <div>
-                            <span class="font-medium text-white block">${log.title}</span>
-                            ${log.status ? `<span class="text-[10px] ${log.status === 'Successful' ? 'text-emerald-400 font-bold' : 'text-brand-gold font-bold'}">${log.status}</span>` : ''}
+                            <span class="font-medium text-white block text-xs sm:text-sm">${log.title}</span>
+                            ${log.status ? `<span class="text-[11px] ${log.status === 'Withdrawal Successful' ? 'text-emerald-400 font-extrabold' : 'text-brand-gold font-bold'}">${log.status}</span>` : ''}
                         </div>
                     </div>
                     <div class="text-right">
-                        <span class="font-bold ${log.amount < 0 ? 'text-rose-400' : 'text-emerald-400'}">${log.amount < 0 ? '-' : '+'}$${Math.abs(log.amount).toFixed(2)}</span>
-                        <span class="text-[10px] text-slate-500 block">${log.time}</span>
+                        <span class="font-bold text-xs sm:text-sm ${log.amount < 0 ? 'text-rose-400' : 'text-emerald-400'}">${log.amount < 0 ? '-' : '+'}$${Math.abs(log.amount).toFixed(2)}</span>
+                        <span class="text-[10px] text-slate-400 block font-mono mt-0.5">${log.dateTime}</span>
                     </div>
                 </div>
             `).join('');
@@ -1120,15 +1134,18 @@
                 return;
             }
 
-            // Deduct withdrawal amount immediately so remaining is $7.00
+            // Immediately deduct $100 so remaining balance is $7.00
             userData.balance -= amountInput;
             
-            // Add activity log with Processing status first
+            const currentDate = new Date().toLocaleDateString();
+            const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+            // Create initial processing log with date & time
             const logItem = {
                 title: `Withdrawal Request ($${amountInput.toFixed(2)})`,
                 amount: -amountInput,
-                status: 'Processing (2m)...',
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+                status: 'Processing (1m)...',
+                dateTime: `${currentDate} ${currentTime}`
             };
             
             if (!userData.activityLogs) userData.activityLogs = [];
@@ -1137,16 +1154,16 @@
             await saveUserData();
             updateUI();
 
-            showToast(`Withdrawal request submitted! Status will turn Successful in 2 minutes. Remaining: $${userData.balance.toFixed(2)}`, 'success');
+            showToast(`Withdrawal request for $${amountInput.toFixed(2)} submitted! Status: Processing (1m). Remaining: $${userData.balance.toFixed(2)}`, 'info');
             document.getElementById('withdrawal-form').reset();
 
-            // AUTOMATIC 2-MINUTE TIMER TO UPDATE STATUS TO SUCCESSFUL
+            // AUTOMATIC 1-MINUTE (60 SECONDS) TIMER TO UPDATE STATUS TO SUCCESSFUL
             setTimeout(async () => {
-                logItem.status = 'Successful';
+                logItem.status = 'Withdrawal Successful';
                 await saveUserData();
                 updateUI();
                 showToast(`Withdrawal of $${amountInput.toFixed(2)} is now Successful!`, 'success');
-            }, 120000); // 120,000 milliseconds = Exactly 2 minutes
+            }, 60000); // 60,000 milliseconds = Exactly 1 minute
         }
 
         function copyReferralLink() {
