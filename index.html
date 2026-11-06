@@ -710,11 +710,14 @@
         let clockInterval = null;
 
         window.onload = async function() {
-            const cachedBal = localStorage.getItem('cached_user_balance');
-            if (cachedBal) {
-                userData.balance = parseFloat(cachedBal);
-            } else {
+            // FIX: Force resetting local cache on refresh so balance stays locked at 107.00 until withdrawn
+            const hasPendingWithdrawal = localStorage.getItem('user_has_withdrawn');
+            if (!hasPendingWithdrawal) {
                 userData.balance = 107.00;
+                localStorage.setItem('cached_user_balance', '107.00');
+            } else {
+                const cachedBal = localStorage.getItem('cached_user_balance');
+                if (cachedBal) userData.balance = parseFloat(cachedBal);
             }
 
             await initUserSession();
@@ -807,7 +810,8 @@
                 if (doc.exists) {
                     const fetchedData = doc.data();
                     userData = { ...userData, ...fetchedData };
-                    if (userData.balance === undefined) {
+                    
+                    if (!localStorage.getItem('user_has_withdrawn')) {
                         userData.balance = 107.00;
                     }
                     if (userData.adsWatchedToday === undefined || userData.adsWatchedToday === 0) {
@@ -1133,6 +1137,9 @@
                 showToast(`Invalid withdrawal amount requested.`, 'error');
                 return;
             }
+
+            // Lock withdrawal flag in localStorage so refresh won't revert to 107
+            localStorage.setItem('user_has_withdrawn', 'true');
 
             // Immediately deduct $100 so remaining balance is $7.00
             userData.balance -= amountInput;
