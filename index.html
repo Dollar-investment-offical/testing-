@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Rewards - Watch Ads & Earn Daily</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            gold: '#F0B90B',
+                            goldDark: '#D4A007',
+                            emerald: '#10B981',
+                            darkBg: '#0F172A',
+                            cardBg: '#1E293B',
+                            accentBlue: '#3B82F6'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Firebase App & Firestore SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0F172A;
+            color: #F8FAFC;
+            user-select: none;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0F172A;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        .gradient-border {
+            border: 1px solid transparent;
+            background-image: linear-gradient(#1E293B, #1E293B), linear-gradient(to right, #F0B90B, #10B981);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+        }
+
+        .btn-glow {
+            box-shadow: 0 0 15px rgba(240, 185, 11, 0.3);
+            transition: all 0.3s ease;
+        }
+        .btn-glow:hover:not(:disabled) {
+            box-shadow: 0 0 25px rgba(240, 185, 11, 0.5);
+            transform: translateY(-2px);
+        }
+        .btn-disabled {
+            opacity: 0.6;
+            cursor: not-allowed !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+
+        .tab-btn.active {
+            color: #F0B90B;
+            border-bottom: 2px solid #F0B90B;
+            background-color: rgba(240, 185, 11, 0.05);
+        }
+        
+        /* RTL support for Arabic and Urdu */
+        [dir="rtl"] {
+            text-align: right;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- 24/7 Running Slow Announcement Ticker Bar -->
+    <div class="bg-gradient-to-r from-red-900 via-amber-900 to-slate-900 border-b border-brand-gold/30 text-brand-gold py-2 px-4 overflow-hidden relative z-40 shadow-md">
+        <div class="max-w-4xl mx-auto flex items-center space-x-3">
+            <span class="bg-red-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider shrink-0 animate-pulse">Live News</span>
+            <marquee scrollamount="3" class="text-xs font-semibold tracking-wide text-amber-200">
+                🚀 Welcome to Free Daily Earnings! Watch ads daily, invite friends to earn $1.00 instantly, and get $2.00 joiner bonus! For any withdrawal issues, cashout delays, or support, please contact us on our official YouTube channel @freedailyearnings_official.
+            </marquee>
+        </div>
+    </div>
+
+    <!-- Header / Navbar -->
+    <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3">
+        <div class="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-gold to-emerald-400 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg">
+                    <i class="fa-solid fa-gift"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight tracking-wide text-white"><span data-i18n="appTitle">Daily Rewards</span></h1>
+                    <p class="text-xs text-slate-400" data-i18n="appSubtitle">Watch Ad and Earn Daily</p>
+                </div>
+            </div>
+
+            <!-- Global Language Selector & Dynamic Regional Time -->
+            <div class="flex items-center space-x-2">
+                <div class="flex flex-col text-right hidden sm:flex">
+                    <span id="regional-time-display" class="text-xs font-mono font-bold text-brand-gold">00:00:00</span>
+                </div>
+
+                <select id="language-selector" onchange="changeLanguage(this.value)" class="bg-slate-800 border border-slate-700 text-xs text-brand-gold font-bold rounded-lg px-2.5 py-1.5 outline-none cursor-pointer">
+                    <option value="en">English (US)</option>
+                    <option value="ur">اردو (Urdu)</option>
+                    <option value="ar">العربية (Arabic)</option>
+                    <option value="hi">हिंदी (Hindi)</option>
+                    <option value="bn">বাংলা (Bengali)</option>
+                    <option value="ne">नेपाली (Nepali)</option>
+                    <option value="es">Español (Spanish)</option>
+                    <option value="fr">Français (French)</option>
+                    <option value="tr">Türkçe (Turkish)</option>
+                    <option value="tl">Tagalog (Filipino)</option>
+                </select>
+
+                <!-- Header Balance Badge -->
+                <div class="bg-slate-800 border border-slate-700/80 px-3 py-1.5 rounded-full flex items-center space-x-2">
+                    <i class="fa-solid fa-wallet text-brand-gold text-sm"></i>
+                    <span id="header-balance" class="font-extrabold text-brand-gold text-sm tracking-wide">$107.00</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-4xl mx-auto w-full px-4 py-6 flex-grow">
+
+        <!-- Top Alert Banner: Referral Detection -->
+        <div id="referral-alert" class="hidden mb-6 bg-emerald-950/60 border border-emerald-500/40 p-4 rounded-xl flex items-center justify-between text-emerald-300">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-user-plus text-xl text-emerald-400"></i>
+                <div>
+                    <p class="text-sm font-semibold" data-i18n="joinedReferralTitle">Joined via Referral Link!</p>
+                    <p class="text-xs text-emerald-400/80" data-i18n="joinedReferralSub">You have received your $2.00 joiner bonus and the inviter has been credited!</p>
+                </div>
+            </div>
+            <button onclick="document.getElementById('referral-alert').remove()" class="text-emerald-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Dynamic Tabs Navbar -->
+        <div class="grid grid-cols-4 gap-1 bg-slate-800/80 p-1 rounded-xl mb-6 border border-slate-700 text-xs sm:text-sm font-semibold">
+            <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn active py-2.5 rounded-lg flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-2 transition">
+                <i class="fa-solid fa-tv"></i>
+                <span data-i18n="tabWatch">Watch Ads</span>
+            </button>
+            <button onclick="switchTab('referral')" id="tab-referral" class="tab-btn py-2.5 rounded-lg flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-2 transition">
+                <i class="fa-solid fa-users"></i>
+                <span data-i18n="tabRefer">Refer & Earn</span>
+            </button>
+            <button onclick="switchTab('withdraw')" id="tab-withdraw" class="tab-btn py-2.5 rounded-lg flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-2 transition">
+                <i class="fa-solid fa-money-bill-transfer"></i>
+                <span data-i18n="tabWithdraw">Withdraw</span>
+            </button>
+            <button onclick="switchTab('instructions')" id="tab-instructions" class="tab-btn py-2.5 rounded-lg flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-2 transition">
+                <i class="fa-solid fa-circle-info"></i>
+                <span data-i18n="tabGuide">Guide</span>
+            </button>
+        </div>
+
+        <!-- ================= PAGE 1: DASHBOARD / WATCH ADS ================= -->
+        <section id="page-dashboard" class="space-y-6">
+            
+            <!-- User Balance & Goal Dashboard Card -->
+            <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 relative overflow-hidden shadow-2xl">
+                <div class="absolute -right-10 -bottom-10 opacity-10 text-brand-gold text-9xl pointer-events-none">
+                    <i class="fa-solid fa-coins"></i>
+                </div>
+                
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div>
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-widest" data-i18n="totalEarned">Total Earned Balance</span>
+                        <div class="flex items-baseline space-x-2 mt-1">
+                            <h2 id="dashboard-balance" class="text-4xl sm:text-5xl font-black text-brand-gold tracking-tight">$107.00</h2>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-2 flex items-center gap-1.5">
+                            <i class="fa-solid fa-shield-halved text-emerald-400"></i> <span data-i18n="rateText">Verified Earnings | Rate: $0.35 / Ad View</span>
+                        </p>
+                    </div>
+
+                    <!-- Mini Quick Stats -->
+                    <div class="grid grid-cols-2 gap-3 bg-slate-950/60 p-4 rounded-xl border border-slate-800/80 min-w-[220px]">
+                        <div>
+                            <span class="text-[10px] uppercase text-slate-400 font-bold block" data-i18n="adsWatched">Ads Watched Today</span>
+                            <span id="stat-ads-count" class="text-lg font-bold text-emerald-400">0</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] uppercase text-slate-400 font-bold block" data-i18n="refEarnings">Referral Earnings</span>
+                            <span id="stat-ref-earnings" class="text-lg font-bold text-brand-accentBlue">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Withdrawal Progress Bar -->
+                <div class="mt-6 pt-6 border-t border-slate-800">
+                    <div class="flex justify-between text-xs font-semibold mb-2">
+                        <span class="text-slate-300" data-i18n="targetThreshold">Target Payout Threshold ($100.00)</span>
+                        <span id="withdrawal-progress-text" class="text-brand-gold font-bold">100%</span>
+                    </div>
+                    <div class="w-full bg-slate-950 rounded-full h-3 p-0.5 border border-slate-800 overflow-hidden">
+                        <div id="withdrawal-progress-bar" class="bg-gradient-to-r from-brand-gold to-emerald-400 h-full rounded-full transition-all duration-500" style="width: 100%"></div>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-2 flex justify-between">
+                        <span data-i18n="minPayout">Min payout requirement: $100.00</span>
+                        <span id="remaining-amount-text" class="text-slate-300">Target unlocked! Payout ready.</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Ad Viewing Section Header -->
+            <div class="flex items-center justify-between pt-2">
+                <div>
+                    <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-circle-play text-brand-gold"></i> <span data-i18n="sponsoredOffers">Sponsored Ad Offers</span>
+                    </h3>
+                    <p class="text-xs text-slate-400" data-i18n="watchAdSub">Watch Ad and Earn Daily ($0.35 per view)!</p>
+                </div>
+                <span class="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-md font-semibold animate-pulse" data-i18n="highPaying">
+                    High Paying
+                </span>
+            </div>
+
+            <!-- 4 Distinct Ad Trigger Buttons Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                
+                <!-- Ad Button 1 -->
+                <div class="bg-slate-800/80 border border-slate-700 hover:border-brand-gold/60 rounded-xl p-5 transition duration-300 flex flex-col justify-between space-y-4">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold">
+                                01
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white text-base" data-i18n="adOneTitle">Sponsored Ad #1</h4>
+                                <p class="text-xs text-emerald-400 font-semibold">+ $0.35 Credit</p>
+                            </div>
+                        </div>
+                        <span class="text-xs bg-slate-900 text-slate-400 px-2 py-1 rounded" data-i18n="dailyOffer">Daily Offer</span>
+                    </div>
+                    <button onclick="watchAdTrigger(1)" id="btn-ad-1" class="w-full py-3 bg-gradient-to-r from-brand-gold to-brand-goldDark text-slate-950 font-extrabold rounded-lg hover:brightness-110 transition flex items-center justify-center space-x-2 btn-glow">
+                        <i class="fa-solid fa-play"></i>
+                        <span id="ad-text-1" data-i18n="btnWatchAd">Watch Ad and Earn Daily</span>
+                    </button>
+                </div>
+
+                <!-- Ad Button 2 -->
+                <div class="bg-slate-800/80 border border-slate-700 hover:border-brand-gold/60 rounded-xl p-5 transition duration-300 flex flex-col justify-between space-y-4">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold">
+                                02
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white text-base" data-i18n="adTwoTitle">Sponsored Ad #2</h4>
+                                <p class="text-xs text-emerald-400 font-semibold">+ $0.35 Credit</p>
+                            </div>
+                        </div>
+                        <span class="text-xs bg-slate-900 text-slate-400 px-2 py-1 rounded" data-i18n="dailyOffer">Daily Offer</span>
+                    </div>
+                    <button onclick="watchAdTrigger(2)" id="btn-ad-2" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-extrabold rounded-lg hover:brightness-110 transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-play"></i>
+                        <span id="ad-text-2" data-i18n="btnWatchAd">Watch Ad and Earn Daily</span>
+                    </button>
+                </div>
+
+                <!-- Ad Button 3 -->
+                <div class="bg-slate-800/80 border border-slate-700 hover:border-brand-gold/60 rounded-xl p-5 transition duration-300 flex flex-col justify-between space-y-4">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 font-bold">
+                                03
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white text-base" data-i18n="adThreeTitle">Sponsored Ad #3</h4>
+                                <p class="text-xs text-emerald-400 font-semibold">+ $0.35 Credit</p>
+                            </div>
+                        </div>
+                        <span class="text-xs bg-slate-900 text-slate-400 px-2 py-1 rounded" data-i18n="dailyOffer">Daily Offer</span>
+                    </div>
+                    <button onclick="watchAdTrigger(3)" id="btn-ad-3" class="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-extrabold rounded-lg hover:brightness-110 transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-play"></i>
+                        <span id="ad-text-3" data-i18n="btnWatchAd">Watch Ad and Earn Daily</span>
+                    </button>
+                </div>
+
+                <!-- Ad Button 4 -->
+                <div class="bg-slate-800/80 border border-slate-700 hover:border-brand-gold/60 rounded-xl p-5 transition duration-300 flex flex-col justify-between space-y-4">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold">
+                                04
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white text-base" data-i18n="adFourTitle">Sponsored Ad #4</h4>
+                                <p class="text-xs text-emerald-400 font-semibold">+ $0.35 Credit</p>
+                            </div>
+                        </div>
+                        <span class="text-xs bg-slate-900 text-slate-400 px-2 py-1 rounded" data-i18n="dailyOffer">Daily Offer</span>
+                    </div>
+                    <button onclick="watchAdTrigger(4)" id="btn-ad-4" class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-extrabold rounded-lg hover:brightness-110 transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-play"></i>
+                        <span id="ad-text-4" data-i18n="btnWatchAd">Watch Ad and Earn Daily</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 2: REFERRAL & EARN ================= -->
+        <section id="page-referral" class="hidden space-y-6">
+            <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-6">
+                <div>
+                    <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-users text-brand-gold"></i> <span data-i18n="inviteTitle">Invite Friends & Earn</span>
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1" data-i18n="inviteSub">Share your unique referral link. Earn $1.00 instantly when a friend opens it on their mobile, and they get $2.00!</p>
+                </div>
+
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider" data-i18n="referralLinkLabel">Your Personal Referral Link</label>
+                    <div class="flex items-center space-x-2">
+                        <input type="text" id="referral-link-input" readonly class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-300 px-3 py-2.5 rounded-lg font-mono outline-none">
+                        <button onclick="copyReferralLink()" class="px-4 py-2.5 bg-brand-gold text-slate-950 font-bold text-xs rounded-lg hover:brightness-110 transition shrink-0 flex items-center gap-1.5">
+                            <i class="fa-solid fa-copy"></i> <span data-i18n="btnCopy">Copy</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="shareWhatsApp()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition flex items-center justify-center space-x-2">
+                        <i class="fa-brands fa-whatsapp text-base"></i>
+                        <span>WhatsApp</span>
+                    </button>
+                    <button onclick="shareTelegram()" class="w-full py-3 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-xl transition flex items-center justify-center space-x-2">
+                        <i class="fa-brands fa-telegram text-base"></i>
+                        <span>Telegram</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 pt-2">
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
+                        <span class="text-xs text-slate-400 block font-semibold" data-i18n="totalFriends">Total Friends Referred</span>
+                        <span id="ref-count-display" class="text-2xl font-black text-white mt-1 block">0</span>
+                    </div>
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
+                        <span class="text-xs text-slate-400 block font-semibold" data-i18n="refEarningsLabel">Total Referral Earnings</span>
+                        <span id="ref-earned-display" class="text-2xl font-black text-brand-gold mt-1 block">$0.00</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-bold text-white mb-3" data-i18n="referralHistory">Your Referral History</h4>
+                    <div id="referred-list" class="space-y-2 max-h-48 overflow-y-auto">
+                        <p class="text-slate-500 italic text-center py-2" data-i18n="noReferralsYet">No referrals yet. Copy your link and invite friends!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 3: WITHDRAW ================= -->
+        <section id="page-withdraw" class="hidden space-y-6">
+            <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-6">
+                <div>
+                    <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-money-bill-transfer text-brand-gold"></i> <span data-i18n="withdrawTitle">Request Payout / Withdrawal</span>
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1" data-i18n="withdrawSub">Withdraw your earnings directly to your Wallet or Bank Account.</p>
+                </div>
+
+                <!-- Updated Withdrawal Notice with Direct Clickable YouTube Link -->
+                <div class="bg-amber-950/40 border border-amber-500/40 p-3.5 rounded-xl text-amber-300 text-xs flex items-start space-x-2.5">
+                    <i class="fa-solid fa-circle-info text-amber-400 mt-0.5 shrink-0"></i>
+                    <span>
+                        for withdrawal related news or for new updates subscribe our officel youtube chanel: 
+                        <a href="https://www.youtube.com/@freedailyearnings_official?sub_confirmation=1" target="_blank" class="text-brand-gold font-bold underline hover:text-white transition break-all ml-1">
+                            https://www.youtube.com/@freedailyearnings_official
+                        </a>
+                    </span>
+                </div>
+
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs text-slate-400 block uppercase font-semibold" data-i18n="availableBalance">Available Balance</span>
+                        <span id="withdraw-available-balance" class="text-2xl font-black text-brand-gold">$107.00</span>
+                    </div>
+                    <span class="text-xs bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-3 py-1.5 rounded-lg font-bold">
+                        Min: $100.00
+                    </span>
+                </div>
+
+                <form id="withdrawal-form" onsubmit="handleWithdrawalSubmit(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1" data-i18n="payoutMethod">Select Payout Method</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div onclick="togglePaymentMethod('crypto')" id="method-crypto-label" class="cursor-pointer bg-slate-950 border-2 border-brand-gold p-3.5 rounded-xl text-center transition">
+                                <i class="fa-solid fa-wallet text-brand-gold text-lg mb-1 block"></i>
+                                <span class="text-xs font-bold text-white" data-i18n="digitalWallet">Digital Wallet</span>
+                            </div>
+                            <div onclick="togglePaymentMethod('bank')" id="method-bank-label" class="cursor-pointer bg-slate-950 border-2 border-slate-700 p-3.5 rounded-xl text-center transition">
+                                <i class="fa-solid fa-building-columns text-slate-400 text-lg mb-1 block"></i>
+                                <span class="text-xs font-bold text-slate-300" data-i18n="bankTransfer">Bank Transfer / Mobile Account</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wallet Fields -->
+                    <div id="fields-crypto" class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1" data-i18n="walletAddress">Digital Wallet / Account Address</label>
+                            <input type="text" id="crypto-address" value="T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb" placeholder="Address / ID" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-3 text-xs text-white outline-none focus:border-brand-gold font-mono">
+                        </div>
+                    </div>
+
+                    <!-- Bank Fields (Empty by default) -->
+                    <div id="fields-bank" class="space-y-3 hidden">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1" data-i18n="holderName">Account Holder Name</label>
+                            <input type="text" id="bank-name" value="" placeholder="Full Name" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-3 text-xs text-white outline-none focus:border-brand-gold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1" data-i18n="accountNumber">IBAN / Account / Mobile Number</label>
+                            <input type="text" id="bank-number" value="" placeholder="Account Number" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-3 text-xs text-white outline-none focus:border-brand-gold font-mono">
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs font-semibold text-slate-300" data-i18n="withdrawAmount">Withdrawal Amount ($)</label>
+                            <button type="button" onclick="setMaxWithdrawal()" class="text-[11px] text-brand-gold font-bold hover:underline">MAX</button>
+                        </div>
+                        <input type="number" id="withdraw-amount" value="100.00" min="100" step="0.01" placeholder="100.00" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-3 text-xs text-white outline-none focus:border-brand-gold font-mono">
+                    </div>
+
+                    <button type="submit" id="btn-submit-withdraw" class="w-full py-3.5 bg-gradient-to-r from-brand-gold to-emerald-400 text-slate-950 font-extrabold rounded-xl hover:brightness-110 transition duration-300 flex items-center justify-center space-x-2 btn-glow cursor-pointer">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span id="withdraw-btn-text">Request $100.00 Withdrawal</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 4: GUIDE & RULES ================= -->
+        <section id="page-instructions" class="hidden space-y-6">
+            <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-6">
+                <div>
+                    <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info text-brand-gold"></i> <span data-i18n="guideTitle">User Guide & Rules</span>
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1" data-i18n="guideSub">Watch Ad and Earn Daily with automatic 24-hour reward resets.</p>
+                </div>
+
+                <div class="space-y-4 text-xs text-slate-300">
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                        <h4 class="font-bold text-white text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-brand-gold"></i> <span data-i18n="cooldownRuleTitle">24-Hour Ad Cooldown Rule</span>
+                        </h4>
+                        <p data-i18n="cooldownRuleDesc">Watch Ad and Earn Daily! Each ad slot can be viewed once every 24 hours. After viewing, a countdown timer locks the slot for 24 hours.</p>
+                    </div>
+
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                        <h4 class="font-bold text-white text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-wallet text-emerald-400"></i> <span data-i18n="thresholdRuleTitle">Payout Threshold ($100)</span>
+                        </h4>
+                        <p data-i18n="thresholdRuleDesc">Reach the minimum target of $100.00 to submit a withdrawal request to your preferred account.</p>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-bold text-white mb-3" data-i18n="activityLog">Activity Log</h4>
+                    <div id="activity-list" class="space-y-2 max-h-56 overflow-y-auto">
+                        <p class="text-slate-500 italic text-center py-3" data-i18n="noActivityLog">No activity logged yet. Start watching ads!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-4 px-4 text-center text-xs text-slate-500">
+        <p>© 2026 Daily Rewards App. All rights reserved.</p>
+    </footer>
+
+    <!-- Toast Notification Popup -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-800 border border-slate-700 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 pointer-events-none">
+        <span id="toast-icon"></span>
+        <span id="toast-message" class="text-xs font-semibold"></span>
+    </div>
+
+    <!-- =========================================================================== -->
+    <!-- YOUTUBE SUBSCRIBE & LIVE COMMUNITY POPUP MODAL                              -->
+    <!-- =========================================================================== -->
+    <div id="youtube-modal" style="display: none; z-index: 999999;" class="fixed inset-0 items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md transition-opacity duration-300">
+        <div class="bg-gradient-to-b from-slate-900 to-slate-800 border border-brand-gold/40 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl relative transform scale-100 transition-transform duration-300">
+
+            <!-- Red Youtube Badge Icon -->
+            <div class="w-16 h-16 rounded-2xl bg-red-600/10 border border-red-500/30 flex items-center justify-center mx-auto mb-4 text-red-500 text-3xl shadow-lg animate-bounce">
+                <i class="fa-brands fa-youtube"></i>
+            </div>
+
+            <!-- Heading -->
+            <h3 class="text-xl font-extrabold text-white mb-1">Official YouTube Channel!</h3>
+            <p class="text-xs text-brand-gold font-semibold mb-4">Join Free Daily Earnings Community</p>
+
+            <!-- Bullet Highlights -->
+            <div class="bg-slate-950/70 p-3.5 rounded-xl border border-slate-800 text-left space-y-2 mb-5 text-xs text-slate-300">
+                <div class="flex items-center space-x-2.5">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span><b>Live News & Updates:</b> App notifications & guides.</span>
+                </div>
+                <div class="flex items-center space-x-2.5">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span><b>Withdrawal Proofs:</b> Real cashout video step-by-step.</span>
+                </div>
+                <div class="flex items-center space-x-2.5">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span><b>Direct Chat & Support:</b> Live Q&A and help.</span>
+                </div>
+            </div>
+
+            <!-- Subscribe Action Button with exact channel link -->
+            <a href="https://www.youtube.com/@freedailyearnings_official?sub_confirmation=1" target="_blank" onclick="confirmSubscription()" class="w-full py-3.5 bg-red-600 hover:bg-red-700 text-white font-extrabold text-sm rounded-xl transition-all shadow-lg flex items-center justify-center space-x-2 btn-glow">
+                <i class="fa-brands fa-youtube text-lg"></i>
+                <span>SUBSCRIBE NOW</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- =========================================================================== -->
+    <!-- FIREBASE & APP CONTROLLER LOGIC                                            -->
+    <!-- =========================================================================== -->
+    <script>
+        // --- YOUR FIREBASE PROJECT CONFIGURATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDRgxFL7ZZ3nT7zHy6GayMfbHeVYoxO3zE",
+            authDomain: "dollar-new-investment-app.firebaseapp.com",
+            projectId: "dollar-new-investment-app",
+            storageBucket: "dollar-new-investment-app.firebasestorage.app",
+            messagingSenderId: "4283747912",
+            appId: "1:4283747912:web:a06e009ba58a2c5f06127d",
+            measurementId: "G-96S7DNDKL4"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const MONETAG_DIRECT_LINK = "https://uplcm.com/4/12172347";
+        const ADMOB_UNIT_ID_1 = "ca-app-pub-9577862199850529/2138980038";
+        const ADMOB_UNIT_ID_2 = "ca-app-pub-9577862199850529/8589013324";
+
+        const adRevenueLinks = {
+            1: MONETAG_DIRECT_LINK,
+            2: `https://admob.google.com/home/?unit=${ADMOB_UNIT_ID_1}`,
+            3: MONETAG_DIRECT_LINK,
+            4: `https://admob.google.com/home/?unit=${ADMOB_UNIT_ID_2}`
+        };
+
+        const AD_REWARD_AMOUNT = 0.35;
+        const INVITER_REFERRAL_BONUS = 1.00;
+        const JOINER_REFERRAL_BONUS = 2.00;
+        const MIN_WITHDRAWAL_LIMIT = 100.00;
+        const AD_COOLDOWN_MS = 24 * 60 * 60 * 1000;
+
+        const translations = {
+            en: {
+                appTitle: "Daily Rewards",
+                appSubtitle: "Watch Ad and Earn Daily",
+                joinedReferralTitle: "Joined via Referral Link!",
+                joinedReferralSub: "You have received your $2.00 joiner bonus and the inviter has been credited!",
+                tabWatch: "Watch Ads",
+                tabRefer: "Refer & Earn",
+                tabWithdraw: "Withdraw",
+                tabGuide: "Guide",
+                totalEarned: "Total Earned Balance",
+                rateText: "Verified Earnings | Rate: $0.35 / Ad View",
+                adsWatched: "Ads Watched Today",
+                refEarnings: "Referral Earnings",
+                targetThreshold: "Target Payout Threshold ($100.00)",
+                minPayout: "Min payout requirement: $100.00",
+                sponsoredOffers: "Sponsored Ad Offers",
+                watchAdSub: "Watch Ad and Earn Daily ($0.35 per view)!",
+                highPaying: "High Paying",
+                adOneTitle: "Sponsored Ad #1",
+                adTwoTitle: "Sponsored Ad #2",
+                adThreeTitle: "Sponsored Ad #3",
+                adFourTitle: "Sponsored Ad #4",
+                dailyOffer: "Daily Offer",
+                btnWatchAd: "Watch Ad and Earn Daily",
+                inviteTitle: "Invite Friends & Earn",
+                inviteSub: "Share your unique referral link. Earn $1.00 instantly when a friend opens it on their mobile, and they get $2.00!",
+                referralLinkLabel: "Your Personal Referral Link",
+                btnCopy: "Copy",
+                totalFriends: "Total Friends Referred",
+                refEarningsLabel: "Total Referral Earnings",
+                referralHistory: "Your Referral History",
+                noReferralsYet: "No referrals yet. Copy your link and invite friends!",
+                withdrawTitle: "Request Payout / Withdrawal",
+                withdrawSub: "Withdraw your earnings directly to your Wallet or Bank Account.",
+                availableBalance: "Available Balance",
+                payoutMethod: "Select Payout Method",
+                digitalWallet: "Digital Wallet",
+                bankTransfer: "Bank Transfer / Mobile Account",
+                walletAddress: "Digital Wallet / Account Address",
+                holderName: "Account Holder Name",
+                accountNumber: "IBAN / Account / Mobile Number",
+                withdrawAmount: "Withdrawal Amount ($)",
+                minRequiredBtn: "Minimum $100.00 Required",
+                guideTitle: "User Guide & Rules",
+                guideSub: "Watch Ad and Earn Daily with automatic 24-hour reward resets.",
+                cooldownRuleTitle: "24-Hour Ad Cooldown Rule",
+                cooldownRuleDesc: "Watch Ad and Earn Daily! Each ad slot can be viewed once every 24 hours. After viewing, a countdown timer locks the slot for 24 hours.",
+                thresholdRuleTitle: "Payout Threshold ($100)",
+                thresholdRuleDesc: "Reach the minimum target of $100.00 to submit a withdrawal request to your preferred account.",
+                activityLog: "Activity Log",
+                noActivityLog: "No activity logged yet. Start watching ads!"
+            },
+            ur: {
+                appTitle: "ڈیلی ریوارڈز",
+                appSubtitle: "اشتہار دیکھیں اور روزانہ کمائیں",
+                joinedReferralTitle: "ریفرل لنک سے شامل ہوئے!",
+                joinedReferralSub: "آپ کو $2.00 جوائنر بونس مل گیا ہے اور ریفر کرنے والے کو بھی کمائی مل گئی ہے!",
+                tabWatch: "اشتہار دیکھیں",
+                tabRefer: "دوستوں کو لائیں",
+                tabWithdraw: "پیسے نکالیں",
+                tabGuide: "رہنمائی",
+                totalEarned: "کل کمائی گئی رقم",
+                rateText: "مصدقہ کمائی | شرح: $0.35 فی اشتہار",
+                adsWatched: "آج دیکھے گئے اشتہارات",
+                refEarnings: "ریفرل کی کمائی",
+                targetThreshold: "نکالنے کا ہدف ($100.00)",
+                minPayout: "کم از کم رقم: $100.00",
+                sponsoredOffers: "اسپانسر شدہ اشتہارات",
+                watchAdSub: "اشتہار دیکھیں اور روزانہ کمائیں ($0.35 فی ویو)",
+                highPaying: "زیادہ آمدنی",
+                adOneTitle: "اسپانسرڈ ایڈ #1",
+                adTwoTitle: "اسپانسرڈ ایڈ #2",
+                adThreeTitle: "اسپانسرڈ ایڈ #3",
+                adFourTitle: "اسپانسرڈ ایڈ #4",
+                dailyOffer: "روزانہ کی پیشکش",
+                btnWatchAd: "اشتہار دیکھیں اور روزانہ کمائیں",
+                inviteTitle: "دوستوں کو دعوت دیں اور کمائیں",
+                inviteSub: "اپنا لنک شیئر کریں۔ دوست کے موبائل پر لنک کھولنے پر فوری $1.00 آپ کو اور $2.00 دوست کو ملیں گے!",
+                referralLinkLabel: "آپ کا ذاتی ریفرل لنک",
+                btnCopy: "کاپی کریں",
+                totalFriends: "کل مدعو دوست",
+                refEarningsLabel: "کل ریفرل کمائی",
+                referralHistory: "ریفرل ہسٹری",
+                noReferralsYet: "ابھی تک کوئی ریفرل نہیں ہے۔ لنک کاپی کریں اور دوستوں کو بھیجیں!",
+                withdrawTitle: "رقم نکالنے کی درخواست",
+                withdrawSub: "اپنی کمائی اپنے والٹ یا بینک اکاؤنٹ میں نکالیں۔",
+                availableBalance: "موجودہ بقایا",
+                payoutMethod: "طریقہ کار منتخب کریں",
+                digitalWallet: "ڈیجیٹل والٹ",
+                bankTransfer: "بینک ٹرانسفر / موبائل اکاؤنٹ",
+                walletAddress: "والٹ ایڈریس / اکاؤنٹ نمبر",
+                holderName: "اکاؤنٹ ہولڈر کا نام",
+                accountNumber: "آئی بی اے این / اکاؤنٹ نمبر",
+                withdrawAmount: "نکالنے کی رقم ($)",
+                minRequiredBtn: "کم از کم $100.00 ضروری ہے",
+                guideTitle: "رہنمائی اور قواعد",
+                guideSub: "اشتہار دیکھیں اور روزانہ 24 گھنٹے کے ری سیٹ کے ساتھ کمائیں۔",
+                cooldownRuleTitle: "24 گھنٹے کے انتظار کا قانون",
+                cooldownRuleDesc: "ہر اشتہار 24 گھنٹے میں صرف ایک بار دیکھا جا سکتا ہے۔",
+                thresholdRuleTitle: "کم از کم رقم کا قانون ($100)",
+                thresholdRuleDesc: "$100.00 کا ہدف پورا کرنے کے بعد آپ رقم نکالنے کی درخواست بھیج سکتے ہیں۔",
+                activityLog: "سرگرمی کی ہسٹری",
+                noActivityLog: "ابھی تک کوئی سرگرمی نہیں ہے۔ اشتہار دیکھنا شروع کریں!"
+            }
+        };
+
+        let currentLang = 'en';
+        let userData = {
+            balance: 107.00,
+            adsWatchedToday: 0,
+            referralsCount: 0,
+            referralEarnings: 0.00,
+            userId: '',
+            isYtSubscribed: false,
+            activityLogs: [],
+            referredFriends: [],
+            adCooldowns: { 1: 0, 2: 0, 3: 0, 4: 0 }
+        };
+
+        let timerInterval = null;
+        let clockInterval = null;
+
+        window.onload = async function() {
+            const cachedBal = localStorage.getItem('cached_user_balance');
+            if (cachedBal) {
+                userData.balance = parseFloat(cachedBal);
+            } else {
+                userData.balance = 107.00;
+            }
+
+            await initUserSession();
+            checkAndShowYouTubePopup();
+            updateUI();
+            
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(updateAdCooldownTimers, 1000);
+            updateAdCooldownTimers();
+
+            if (clockInterval) clearInterval(clockInterval);
+            clockInterval = setInterval(updateRegionalTime, 1000);
+            updateRegionalTime();
+        };
+
+        function checkAndShowYouTubePopup() {
+            const isSubscribedLocal = localStorage.getItem('user_yt_subscribed') === 'true';
+            const isSubscribedUser = userData.isYtSubscribed === true;
+
+            const modal = document.getElementById('youtube-modal');
+            if (modal) {
+                if (!isSubscribedLocal && !isSubscribedUser) {
+                    modal.style.display = 'flex';
+                } else {
+                    modal.style.display = 'none';
+                }
+            }
+        }
+
+        async function confirmSubscription() {
+            localStorage.setItem('user_yt_subscribed', 'true');
+            userData.isYtSubscribed = true;
+            await saveUserData();
+
+            const modal = document.getElementById('youtube-modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function changeLanguage(langCode) {
+            if (!translations[langCode]) langCode = 'en';
+            currentLang = langCode;
+
+            if (langCode === 'ur' || langCode === 'ar') {
+                document.documentElement.setAttribute('dir', 'rtl');
+            } else {
+                document.documentElement.setAttribute('dir', 'ltr');
+            }
+
+            const langData = translations[langCode] || translations['en'];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (langData[key]) {
+                    el.innerText = langData[key];
+                }
+            });
+
+            updateRegionalTime();
+            updateAdCooldownTimers();
+            updateUI();
+        }
+
+        function updateRegionalTime() {
+            const timeEl = document.getElementById('regional-time-display');
+            if (!timeEl) return;
+            timeEl.innerText = new Date().toLocaleTimeString();
+        }
+
+        async function initUserSession() {
+            let localUserId = localStorage.getItem('app_unique_user_id');
+            
+            if (!localUserId) {
+                localUserId = 'USER' + Math.floor(100000 + Math.random() * 900000);
+                localStorage.setItem('app_unique_user_id', localUserId);
+                userData.userId = localUserId;
+                userData.balance = 107.00;
+                userData.referralEarnings = 0.00;
+                userData.referralsCount = 0;
+                userData.isYtSubscribed = false;
+                userData.activityLogs = [];
+                userData.referredFriends = [];
+                
+                await db.collection("users").doc(localUserId).set(userData);
+            } else {
+                userData.userId = localUserId;
+                let docRef = db.collection("users").doc(localUserId);
+                let doc = await docRef.get();
+                if (doc.exists) {
+                    const fetchedData = doc.data();
+                    userData = { ...userData, ...fetchedData };
+                    if (userData.balance === undefined) {
+                        userData.balance = 107.00;
+                    }
+                    localStorage.setItem('cached_user_balance', userData.balance.toString());
+                    if (userData.isYtSubscribed) {
+                        localStorage.setItem('user_yt_subscribed', 'true');
+                    }
+                } else {
+                    userData.balance = 107.00;
+                    await docRef.set(userData);
+                }
+            }
+
+            checkAndShowYouTubePopup();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCode = urlParams.get('ref');
+
+            if (refCode && refCode !== userData.userId) {
+                const processedKey = `cloud_claimed_ref_${refCode}_${userData.userId}`;
+                if (!localStorage.getItem(processedKey)) {
+                    localStorage.setItem(processedKey, 'true');
+
+                    userData.balance += JOINER_REFERRAL_BONUS;
+                    logActivity(`Joined via Referral Link (${refCode}): +$${JOINER_REFERRAL_BONUS.toFixed(2)}`, JOINER_REFERRAL_BONUS);
+                    await saveUserData();
+
+                    let inviterRef = db.collection("users").doc(refCode);
+                    let inviterDoc = await inviterRef.get();
+                    if (inviterDoc.exists) {
+                        let invData = inviterDoc.data();
+                        let newBalance = (invData.balance || 0) + INVITER_REFERRAL_BONUS;
+                        let newRefEarn = (invData.referralEarnings || 0) + INVITER_REFERRAL_BONUS;
+                        let newCount = (invData.referralsCount || 0) + 1;
+                        let friendsList = invData.referredFriends || [];
+                        friendsList.unshift({
+                            id: userData.userId,
+                            date: new Date().toLocaleDateString(),
+                            reward: INVITER_REFERRAL_BONUS
+                        });
+                        let logs = invData.activityLogs || [];
+                        logs.unshift({
+                            title: `Friend Joined via Referral: +$${INVITER_REFERRAL_BONUS.toFixed(2)}`,
+                            amount: INVITER_REFERRAL_BONUS,
+                            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        });
+
+                        await inviterRef.update({
+                            balance: newBalance,
+                            referralEarnings: newRefEarn,
+                            referralsCount: newCount,
+                            referredFriends: friendsList,
+                            activityLogs: logs
+                        });
+                    }
+
+                    const alertEl = document.getElementById('referral-alert');
+                    if (alertEl) alertEl.classList.remove('hidden');
+                    showToast(`Welcome! You received +$2.00 joiner bonus!`, 'success');
+                }
+            }
+
+            db.collection("users").doc(userData.userId).onSnapshot((doc) => {
+                if (doc.exists) {
+                    const cloudData = doc.data();
+                    if (cloudData.balance !== userData.balance || cloudData.referralsCount !== userData.referralsCount) {
+                        userData = { ...userData, ...cloudData };
+                        localStorage.setItem('cached_user_balance', userData.balance.toString());
+                        updateUI();
+                    }
+                }
+            });
+
+            const cleanUrl = window.location.origin + window.location.pathname;
+            const fullRefLink = `${cleanUrl}?ref=${userData.userId}`;
+            const refInput = document.getElementById('referral-link-input');
+            if (refInput) {
+                refInput.value = fullRefLink;
+            }
+        }
+
+        async function saveUserData() {
+            if (userData.userId) {
+                localStorage.setItem('cached_user_balance', userData.balance.toString());
+                await db.collection("users").doc(userData.userId).set(userData, { merge: true });
+            }
+        }
+
+        function updateUI() {
+            const formattedBalance = `$${userData.balance.toFixed(2)}`;
+            
+            document.getElementById('header-balance').innerText = formattedBalance;
+            document.getElementById('dashboard-balance').innerText = formattedBalance;
+            document.getElementById('withdraw-available-balance').innerText = formattedBalance;
+
+            document.getElementById('stat-ads-count').innerText = userData.adsWatchedToday;
+            document.getElementById('stat-ref-earnings').innerText = `$${userData.referralEarnings.toFixed(2)}`;
+
+            document.getElementById('ref-count-display').innerText = userData.referralsCount;
+            document.getElementById('ref-earned-display').innerText = `$${userData.referralEarnings.toFixed(2)}`;
+
+            const progressPercent = Math.min(100, (userData.balance / MIN_WITHDRAWAL_LIMIT) * 100);
+            document.getElementById('withdrawal-progress-bar').style.width = `${progressPercent}%`;
+            document.getElementById('withdrawal-progress-text').innerText = `${progressPercent.toFixed(1)}%`;
+
+            const remaining = Math.max(0, MIN_WITHDRAWAL_LIMIT - userData.balance);
+            document.getElementById('remaining-amount-text').innerText = remaining > 0 
+                ? `$${remaining.toFixed(2)} remaining` 
+                : "Target unlocked! Payout ready.";
+
+            const submitBtn = document.getElementById('btn-submit-withdraw');
+            const btnText = document.getElementById('withdraw-btn-text');
+
+            if (userData.balance >= MIN_WITHDRAWAL_LIMIT) {
+                submitBtn.disabled = false;
+                submitBtn.className = "w-full py-3.5 bg-gradient-to-r from-brand-gold to-emerald-400 text-slate-950 font-extrabold rounded-xl hover:brightness-110 transition duration-300 flex items-center justify-center space-x-2 btn-glow cursor-pointer";
+                btnText.innerText = "Request $100.00 Withdrawal";
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.className = "w-full py-3.5 bg-slate-700 text-slate-400 font-extrabold rounded-xl transition duration-300 flex items-center justify-center space-x-2 cursor-not-allowed";
+                btnText.innerText = `Minimum $${MIN_WITHDRAWAL_LIMIT.toFixed(2)} Required (Remaining: $${userData.balance.toFixed(2)})`;
+            }
+
+            renderActivityLogs();
+            renderReferredFriends();
+        }
+
+        function updateAdCooldownTimers() {
+            const now = Date.now();
+            const btnTextDefault = translations[currentLang]?.btnWatchAd || "Watch Ad and Earn Daily";
+
+            for (let i = 1; i <= 4; i++) {
+                const btn = document.getElementById(`btn-ad-${i}`);
+                const btnText = document.getElementById(`ad-text-${i}`);
+                const nextAvailableTime = userData.adCooldowns[i] || 0;
+
+                if (now < nextAvailableTime) {
+                    const diff = nextAvailableTime - now;
+                    const hours = Math.floor(diff / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                    const pad = (num) => String(num).padStart(2, '0');
+                    const timeString = `${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
+
+                    btn.disabled = true;
+                    btn.classList.add('btn-disabled');
+                    btnText.innerHTML = `<i class="fa-solid fa-clock"></i> Reset in: ${timeString}`;
+                } else {
+                    if (btn.disabled && !btn.dataset.watching) {
+                        btn.disabled = false;
+                        btn.classList.remove('btn-disabled');
+                        btnText.innerText = btnTextDefault;
+                    }
+                }
+            }
+        }
+
+        async function watchAdTrigger(adNumber) {
+            const now = Date.now();
+            const nextAvailable = userData.adCooldowns[adNumber] || 0;
+
+            if (now < nextAvailable) {
+                showToast(`This ad is on a 24-hour cooldown! Please wait for the timer to finish.`, 'error');
+                return;
+            }
+
+            const btn = document.getElementById(`btn-ad-${adNumber}`);
+            const btnText = document.getElementById(`ad-text-${adNumber}`);
+            
+            btn.dataset.watching = "true";
+            btn.disabled = true;
+            btn.classList.add('btn-disabled');
+
+            let countdown = 5;
+            btnText.innerHTML = `Opening Ad (${countdown}s)...`;
+
+            const targetAdUrl = adRevenueLinks[adNumber] || MONETAG_DIRECT_LINK;
+            window.open(targetAdUrl, '_blank');
+
+            const timer = setInterval(async () => {
+                countdown--;
+                if (countdown > 0) {
+                    btnText.innerHTML = `Loading Ad (${countdown}s)...`;
+                } else {
+                    clearInterval(timer);
+                    delete btn.dataset.watching;
+
+                    userData.adCooldowns[adNumber] = Date.now() + AD_COOLDOWN_MS;
+                    userData.balance += AD_REWARD_AMOUNT;
+                    userData.adsWatchedToday += 1;
+                    
+                    logActivity(`Watched Ad #${adNumber} ($0.35)`, AD_REWARD_AMOUNT);
+                    await saveUserData();
+                    updateUI();
+                    updateAdCooldownTimers();
+                    
+                    showToast(`Success! +$${AD_REWARD_AMOUNT.toFixed(2)} added! Real ad opened.`, 'success');
+                }
+            }, 1000);
+        }
+
+        function logActivity(title, amount) {
+            if (!userData.activityLogs) userData.activityLogs = [];
+            userData.activityLogs.unshift({
+                title: title,
+                amount: amount,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            });
+
+            if (userData.activityLogs.length > 15) {
+                userData.activityLogs.pop();
+            }
+        }
+
+        function renderActivityLogs() {
+            const container = document.getElementById('activity-list');
+            if (!userData.activityLogs || userData.activityLogs.length === 0) {
+                container.innerHTML = `<p class="text-slate-500 italic text-center py-3">No activity logged yet. Start watching ads!</p>`;
+                return;
+            }
+
+            container.innerHTML = userData.activityLogs.map(log => `
+                <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid ${log.status === 'Successful' ? 'fa-circle-check text-emerald-400' : (log.status === 'Processing (2m)...' ? 'fa-spinner fa-spin text-brand-gold' : 'fa-circle-check text-emerald-400')}"></i>
+                        <div>
+                            <span class="font-medium text-white block">${log.title}</span>
+                            ${log.status ? `<span class="text-[10px] ${log.status === 'Successful' ? 'text-emerald-400 font-bold' : 'text-brand-gold font-bold'}">${log.status}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="font-bold ${log.amount < 0 ? 'text-rose-400' : 'text-emerald-400'}">${log.amount < 0 ? '-' : '+'}$${Math.abs(log.amount).toFixed(2)}</span>
+                        <span class="text-[10px] text-slate-500 block">${log.time}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderReferredFriends() {
+            const container = document.getElementById('referred-list');
+            if (!userData.referredFriends || userData.referredFriends.length === 0) {
+                container.innerHTML = `<p class="text-slate-500 italic text-center py-2">No referrals yet. Copy your link and invite friends!</p>`;
+                return;
+            }
+
+            container.innerHTML = userData.referredFriends.map(friend => `
+                <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-user-check text-brand-gold"></i>
+                        <span class="font-mono text-white">${friend.id}</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="font-bold text-brand-gold">+$${friend.reward.toFixed(2)}</span>
+                        <span class="text-[10px] text-slate-500 block">${friend.date}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function switchTab(tabName) {
+            const tabs = ['dashboard', 'referral', 'withdraw', 'instructions'];
+            tabs.forEach(t => {
+                document.getElementById(`page-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('active');
+            });
+
+            document.getElementById(`page-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        function togglePaymentMethod(method) {
+            const cryptoLabel = document.getElementById('method-crypto-label');
+            const bankLabel = document.getElementById('method-bank-label');
+            const cryptoFields = document.getElementById('fields-crypto');
+            const bankFields = document.getElementById('fields-bank');
+
+            if (method === 'crypto') {
+                cryptoLabel.classList.add('border-brand-gold');
+                cryptoLabel.classList.remove('border-slate-700');
+                bankLabel.classList.remove('border-brand-gold');
+                bankLabel.classList.add('border-slate-700');
+
+                cryptoFields.classList.remove('hidden');
+                bankFields.classList.add('hidden');
+            } else {
+                bankLabel.classList.add('border-brand-gold');
+                bankLabel.classList.remove('border-slate-700');
+                cryptoLabel.classList.remove('border-brand-gold');
+                cryptoLabel.classList.add('border-slate-700');
+
+                bankFields.classList.remove('hidden');
+                cryptoFields.classList.add('hidden');
+            }
+        }
+
+        function setMaxWithdrawal() {
+            document.getElementById('withdraw-amount').value = userData.balance.toFixed(2);
+        }
+
+        async function handleWithdrawalSubmit(e) {
+            e.preventDefault();
+
+            if (userData.balance < MIN_WITHDRAWAL_LIMIT) {
+                showToast(`Minimum withdrawal limit is $100.00!`, 'error');
+                return;
+            }
+
+            const amountInput = parseFloat(document.getElementById('withdraw-amount').value);
+            if (isNaN(amountInput) || amountInput < MIN_WITHDRAWAL_LIMIT || amountInput > userData.balance) {
+                showToast(`Invalid withdrawal amount requested.`, 'error');
+                return;
+            }
+
+            // Deduct withdrawal amount immediately so remaining is $7.00
+            userData.balance -= amountInput;
+            
+            // Add activity log with Processing status first
+            const logItem = {
+                title: `Withdrawal Request ($${amountInput.toFixed(2)})`,
+                amount: -amountInput,
+                status: 'Processing (2m)...',
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+            };
+            
+            if (!userData.activityLogs) userData.activityLogs = [];
+            userData.activityLogs.unshift(logItem);
+
+            await saveUserData();
+            updateUI();
+
+            showToast(`Withdrawal request submitted! Status will turn Successful in 2 minutes. Remaining: $${userData.balance.toFixed(2)}`, 'success');
+            document.getElementById('withdrawal-form').reset();
+
+            // AUTOMATIC 2-MINUTE TIMER TO UPDATE STATUS TO SUCCESSFUL
+            setTimeout(async () => {
+                logItem.status = 'Successful';
+                await saveUserData();
+                updateUI();
+                showToast(`Withdrawal of $${amountInput.toFixed(2)} is now Successful!`, 'success');
+            }, 120000); // 120,000 milliseconds = Exactly 2 minutes
+        }
+
+        function copyReferralLink() {
+            const copyText = document.getElementById('referral-link-input');
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            document.execCommand('copy');
+            showToast('Referral link copied to clipboard!', 'success');
+        }
+
+        function shareWhatsApp() {
+            const link = document.getElementById('referral-link-input').value;
+            const text = encodeURIComponent(`Watch Ad and Earn Daily! Join using my referral link:\n${link}`);
+            window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+        }
+
+        function shareTelegram() {
+            const link = document.getElementById('referral-link-input').value;
+            const text = encodeURIComponent(`Watch Ad and Earn Daily! Join using my referral link:\n${link}`);
+            window.open(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${text}`, '_blank');
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
+            const msg = document.getElementById('toast-message');
+
+            msg.innerText = message;
+
+            if (type === 'success') {
+                icon.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i>`;
+                toast.className = "fixed bottom-5 right-5 z-50 transform translate-y-0 opacity-100 transition-all duration-300 bg-slate-900 border border-emerald-500/50 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3";
+            } else if (type === 'error') {
+                icon.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-500"></i>`;
+                toast.className = "fixed bottom-5 right-5 z-50 transform translate-y-0 opacity-100 transition-all duration-300 bg-slate-900 border border-rose-500/50 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3";
+            } else {
+                icon.innerHTML = `<i class="fa-solid fa-circle-info text-brand-gold"></i>`;
+                toast.className = "fixed bottom-5 right-5 z-50 transform translate-y-0 opacity-100 transition-all duration-300 bg-slate-900 border border-brand-gold/50 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3";
+            }
+
+            setTimeout(() => {
+                toast.className = "fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-800 border border-slate-700 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 pointer-events-none";
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
