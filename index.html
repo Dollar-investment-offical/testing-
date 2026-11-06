@@ -97,7 +97,7 @@
     <!-- Main Content Container -->
     <main class="max-w-4xl mx-auto w-full px-4 py-6 flex-grow">
 
-        <!-- Dynamic Tabs Navbar with all original icons -->
+        <!-- Dynamic Tabs Navbar -->
         <div class="grid grid-cols-4 gap-1 bg-slate-800/80 p-1 rounded-xl mb-6 border border-slate-700 text-xs sm:text-sm font-semibold">
             <button onclick="showAlertDisabled()" class="py-2.5 rounded-lg flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-2 text-slate-400 opacity-60 cursor-not-allowed">
                 <i class="fa-solid fa-tv"></i>
@@ -111,9 +111,10 @@
                 <i class="fa-solid fa-money-bill-transfer"></i>
                 <span>Withdraw</span>
             </button>
+            <!-- Guide Tab with Guide Icon Only -->
             <button onclick="switchTab('instructions')" id="tab-instructions" class="tab-btn py-2.5 rounded-lg flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-2 transition">
-                <i class="fa-solid fa-circle-info"></i>
-                <span>Guide & History</span>
+                <i class="fa-solid fa-book"></i>
+                <span>Guide</span>
             </button>
         </div>
 
@@ -173,20 +174,36 @@
             </div>
         </section>
 
-        <!-- ================= PAGE 2: GUIDE & HISTORY ================= -->
+        <!-- ================= PAGE 2: GUIDE & ACTIVITY LOG ================= -->
         <section id="page-instructions" class="hidden space-y-6">
             <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-6">
                 <div>
                     <h3 class="text-xl font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-circle-info text-brand-gold"></i> User Guide & Activity History
+                        <i class="fa-solid fa-book text-brand-gold"></i> User Guide & Rules
                     </h3>
-                    <p class="text-xs text-slate-400 mt-1">Check your transaction progress and withdrawal proofs.</p>
+                    <p class="text-xs text-slate-400 mt-1">Watch Ad and Earn Daily with automatic 24-hour reward resets.</p>
+                </div>
+
+                <div class="space-y-4 text-xs text-slate-300">
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                        <h4 class="font-bold text-white text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-brand-gold"></i> 24-Hour Ad Cooldown Rule
+                        </h4>
+                        <p>Watch Ad and Earn Daily! Each ad slot can be viewed once every 24 hours.</p>
+                    </div>
+
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                        <h4 class="font-bold text-white text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-wallet text-emerald-400"></i> Payout Threshold ($100)
+                        </h4>
+                        <p>Reach the minimum target of $100.00 to submit a withdrawal request.</p>
+                    </div>
                 </div>
 
                 <div>
-                    <h4 class="text-sm font-bold text-white mb-3">Withdrawal Activity Log</h4>
+                    <h4 class="text-sm font-bold text-white mb-3">Activity Log & History</h4>
                     <div id="activity-list" class="space-y-2 max-h-72 overflow-y-auto">
-                        <p class="text-slate-500 italic text-center py-3">No activity logged yet. Make a withdrawal to view history!</p>
+                        <!-- Populated via JS with default referral items -->
                     </div>
                 </div>
             </div>
@@ -209,7 +226,11 @@
     <script>
         let userData = {
             balance: 107.00,
-            activityLogs: []
+            activityLogs: [
+                { title: "Inviter Joined via Referral", amount: 1.00, status: "Successful", dateTime: "11/5/2026, 04:15:22 PM" },
+                { title: "Inviter Joined via Referral", amount: 1.00, status: "Successful", dateTime: "11/5/2026, 02:10:11 PM" },
+                { title: "Inviter Joined via Referral", amount: 1.00, status: "Successful", dateTime: "11/4/2026, 11:30:00 AM" }
+            ]
         };
 
         window.onload = function() {
@@ -275,25 +296,30 @@
             userData.balance = 7.00;
             localStorage.setItem('app_has_withdrawn', 'true');
 
-            updateUI();
-            showToast("Withdrawal request submitted! Please check history after 1 minute.", "info");
+            const currentDate = new Date().toLocaleDateString();
+            const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-            // Switch to history tab automatically
+            // Add initial processing log
+            const logItem = {
+                title: `Withdrawal Request ($100.00)`,
+                amount: -100.00,
+                status: 'Processing (1m)...',
+                dateTime: `${currentDate} ${currentTime}`
+            };
+
+            userData.activityLogs.unshift(logItem);
+            localStorage.setItem('app_activity_logs', JSON.stringify(userData.activityLogs));
+
+            updateUI();
+            showToast("Withdrawal request submitted! Status: Processing (1m).", "info");
+
+            // Switch to guide/history tab automatically
             switchTab('instructions');
 
-            // EXACT 1 MINUTE (60 SECONDS) TIMER: NO PROCESSING TEXT SHOWN, DIRECT SUCCESS AFTER 1 MINUTE
+            // EXACT 1 MINUTE (60 SECONDS) TIMER: CHANGES PROCESSING TO SUCCESSFUL AFTER 1 MINUTE
             setTimeout(() => {
-                const currentDate = new Date().toLocaleDateString();
-                const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-                const logItem = {
-                    title: `Withdrawal Successful ($100.00)`,
-                    amount: -100.00,
-                    status: 'Withdrawal Successful',
-                    dateTime: `${currentDate} ${currentTime}`
-                };
-
-                userData.activityLogs.unshift(logItem);
+                logItem.status = 'Withdrawal Successful';
+                logItem.title = 'Withdrawal Successful ($100.00)';
                 localStorage.setItem('app_activity_logs', JSON.stringify(userData.activityLogs));
                 
                 updateUI();
@@ -304,21 +330,21 @@
         function renderActivityLogs() {
             const container = document.getElementById('activity-list');
             if (!userData.activityLogs || userData.activityLogs.length === 0) {
-                container.innerHTML = `<p class="text-slate-500 italic text-center py-3">No activity logged yet. Make a withdrawal to view history after 1 minute!</p>`;
+                container.innerHTML = `<p class="text-slate-500 italic text-center py-3">No activity logged yet.</p>`;
                 return;
             }
 
             container.innerHTML = userData.activityLogs.map(log => `
                 <div class="flex items-center justify-between p-3 rounded-lg bg-slate-900/60 border border-slate-800">
                     <div class="flex items-center space-x-3">
-                        <i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+                        <i class="fa-solid ${log.status === 'Processing (1m)...' ? 'fa-spinner fa-spin text-brand-gold text-lg' : 'fa-circle-check text-emerald-400 text-lg'}"></i>
                         <div>
                             <span class="font-medium text-white block text-xs sm:text-sm">${log.title}</span>
-                            <span class="text-[11px] text-emerald-400 font-extrabold">${log.status}</span>
+                            <span class="text-[11px] ${log.status === 'Processing (1m)...' ? 'text-brand-gold font-bold' : 'text-emerald-400 font-extrabold'}">${log.status}</span>
                         </div>
                     </div>
                     <div class="text-right">
-                        <span class="font-bold text-xs sm:text-sm text-rose-400">-$${Math.abs(log.amount).toFixed(2)}</span>
+                        <span class="font-bold text-xs sm:text-sm ${log.amount < 0 ? 'text-rose-400' : 'text-emerald-400'}">${log.amount < 0 ? '-' : '+'}$${Math.abs(log.amount).toFixed(2)}</span>
                         <span class="text-[10px] text-slate-400 block font-mono mt-0.5">${log.dateTime}</span>
                     </div>
                 </div>
