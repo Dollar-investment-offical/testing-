@@ -86,10 +86,17 @@
                 </div>
             </div>
 
-            <!-- Header Balance Badge -->
-            <div class="bg-slate-800 border border-slate-700/80 px-3 py-1.5 rounded-full flex items-center space-x-2">
-                <i class="fa-solid fa-wallet text-brand-gold text-sm"></i>
-                <span id="header-balance" class="font-extrabold text-brand-gold text-sm tracking-wide">$107.00</span>
+            <!-- Global Language Selector & Header Balance Badge -->
+            <div class="flex items-center space-x-2">
+                <select id="language-selector" class="bg-slate-800 border border-slate-700 text-xs text-brand-gold font-bold rounded-lg px-2.5 py-1.5 outline-none cursor-pointer">
+                    <option value="en">English (US)</option>
+                    <option value="ur">اردو (Urdu)</option>
+                </select>
+
+                <div class="bg-slate-800 border border-slate-700/80 px-3 py-1.5 rounded-full flex items-center space-x-2">
+                    <i class="fa-solid fa-wallet text-brand-gold text-sm"></i>
+                    <span id="header-balance" class="font-extrabold text-brand-gold text-sm tracking-wide">$102.00</span>
+                </div>
             </div>
         </div>
     </header>
@@ -111,9 +118,8 @@
                 <i class="fa-solid fa-money-bill-transfer"></i>
                 <span>Withdraw</span>
             </button>
-            <!-- Guide Tab with Guide Icon Only -->
             <button onclick="switchTab('instructions')" id="tab-instructions" class="tab-btn py-2.5 rounded-lg flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-2 transition">
-                <i class="fa-solid fa-book"></i>
+                <i class="fa-solid fa-circle-info"></i>
                 <span>Guide</span>
             </button>
         </div>
@@ -125,13 +131,24 @@
                     <h3 class="text-xl font-bold text-white flex items-center gap-2">
                         <i class="fa-solid fa-money-bill-transfer text-brand-gold"></i> Request Payout / Withdrawal
                     </h3>
-                    <p class="text-xs text-slate-400 mt-1">Withdraw your earnings directly to your Digital Wallet.</p>
+                    <p class="text-xs text-slate-400 mt-1">Withdraw your earnings directly to your Wallet or Bank Account.</p>
+                </div>
+
+                <!-- Withdrawal Banner Notice -->
+                <div class="bg-amber-950/40 border border-amber-500/40 p-3.5 rounded-xl text-amber-300 text-xs flex items-start space-x-2.5">
+                    <i class="fa-solid fa-circle-info text-amber-400 mt-0.5 shrink-0"></i>
+                    <span>
+                        for withdrawal related news or for new updates subscribe our official youtube channel: 
+                        <a href="https://www.youtube.com/@freedailyearnings_official?sub_confirmation=1" target="_blank" class="text-brand-gold font-bold underline hover:text-white transition break-all ml-1">
+                            https://www.youtube.com/@freedailyearnings_official
+                        </a>
+                    </span>
                 </div>
 
                 <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex items-center justify-between">
                     <div>
-                        <span class="text-xs text-slate-400 block uppercase font-semibold">Available Balance</span>
-                        <span id="withdraw-available-balance" class="text-2xl font-black text-brand-gold">$107.00</span>
+                        <span class="text-xs text-slate-400 block uppercase font-semibold">AVAILABLE BALANCE</span>
+                        <span id="withdraw-available-balance" class="text-2xl font-black text-brand-gold">$102.00</span>
                     </div>
                     <span class="text-xs bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-3 py-1.5 rounded-lg font-bold">
                         Min: $100.00
@@ -142,13 +159,13 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1">Select Payout Method</label>
                         <div class="grid grid-cols-2 gap-3">
-                            <div class="bg-slate-950 border-2 border-brand-gold p-3.5 rounded-xl text-center">
+                            <div class="bg-slate-950 border-2 border-brand-gold p-3.5 rounded-xl text-center cursor-pointer">
                                 <i class="fa-solid fa-wallet text-brand-gold text-lg mb-1 block"></i>
                                 <span class="text-xs font-bold text-white">Digital Wallet</span>
                             </div>
-                            <div class="bg-slate-950 border-2 border-slate-700 p-3.5 rounded-xl text-center opacity-50">
+                            <div class="bg-slate-950 border-2 border-slate-700 p-3.5 rounded-xl text-center opacity-50 cursor-not-allowed">
                                 <i class="fa-solid fa-building-columns text-slate-400 text-lg mb-1 block"></i>
-                                <span class="text-xs font-bold text-slate-300">Bank Transfer</span>
+                                <span class="text-xs font-bold text-slate-300">Bank Transfer / Mobile Account</span>
                             </div>
                         </div>
                     </div>
@@ -157,12 +174,15 @@
                     <div class="space-y-3">
                         <div>
                             <label class="block text-xs font-semibold text-slate-300 mb-1">Digital Wallet / Account Address</label>
-                            <input type="text" id="crypto-address" value="T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb" readonly class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-3 text-xs text-white outline-none font-mono">
+                            <input type="text" id="crypto-address" value="TQ8x9Z2mP1aR4sK7vW3yU6bL9W" readonly class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-3 text-xs text-white outline-none font-mono">
                         </div>
                     </div>
 
                     <div>
-                        <label class="text-xs font-semibold text-slate-300 mb-1 block">Withdrawal Amount ($)</label>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs font-semibold text-slate-300">Withdrawal Amount ($)</label>
+                            <button type="button" onclick="setMaxWithdrawal()" class="text-[11px] text-brand-gold font-bold hover:underline">MAX</button>
+                        </div>
                         <input type="number" id="withdraw-amount" value="100.00" readonly class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-3 text-xs text-white outline-none font-mono">
                     </div>
 
@@ -174,36 +194,43 @@
             </div>
         </section>
 
-        <!-- ================= PAGE 2: GUIDE & ACTIVITY LOG ================= -->
+        <!-- ================= PAGE 2: GUIDE & RULES ================= -->
         <section id="page-instructions" class="hidden space-y-6">
             <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-6">
                 <div>
                     <h3 class="text-xl font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-book text-brand-gold"></i> User Guide & Rules
+                        <i class="fa-solid fa-circle-info text-brand-gold"></i> User Guide & Rules
                     </h3>
-                    <p class="text-xs text-slate-400 mt-1">Watch Ad and Earn Daily with automatic 24-hour reward resets.</p>
+                    <p class="text-xs text-slate-400 mt-1">Watch Ad and Earn Daily with automatic 24-hour reward resets and daily login bonus.</p>
                 </div>
 
                 <div class="space-y-4 text-xs text-slate-300">
                     <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
                         <h4 class="font-bold text-white text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-gift text-brand-gold"></i> Daily Login Bonus ($0.10)
+                        </h4>
+                        <p>Open the app once every 24 hours to automatically collect your $0.10 daily login reward!</p>
+                    </div>
+
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                        <h4 class="font-bold text-white text-sm flex items-center gap-2">
                             <i class="fa-solid fa-clock-rotate-left text-brand-gold"></i> 24-Hour Ad Cooldown Rule
                         </h4>
-                        <p>Watch Ad and Earn Daily! Each ad slot can be viewed once every 24 hours.</p>
+                        <p>Watch Ad and Earn Daily! Each ad slot can be viewed once every 24 hours. After viewing, a countdown timer locks the slot for 24 hours.</p>
                     </div>
 
                     <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
                         <h4 class="font-bold text-white text-sm flex items-center gap-2">
                             <i class="fa-solid fa-wallet text-emerald-400"></i> Payout Threshold ($100)
                         </h4>
-                        <p>Reach the minimum target of $100.00 to submit a withdrawal request.</p>
+                        <p>Reach the minimum target of $100.00 to submit a withdrawal request to your preferred account.</p>
                     </div>
                 </div>
 
                 <div>
-                    <h4 class="text-sm font-bold text-white mb-3">Activity Log & History</h4>
-                    <div id="activity-list" class="space-y-2 max-h-72 overflow-y-auto">
-                        <!-- Populated via JS with default referral items -->
+                    <h4 class="text-sm font-bold text-white mb-3">Activity Log</h4>
+                    <div id="activity-list" class="space-y-2 max-h-80 overflow-y-auto">
+                        <!-- Activity History Items Populated Here -->
                     </div>
                 </div>
             </div>
@@ -222,30 +249,94 @@
         <span id="toast-message" class="text-xs font-semibold"></span>
     </div>
 
+    <!-- YouTube Subscribe Modal Popup -->
+    <div id="youtube-modal" style="display: none; z-index: 999999;" class="fixed inset-0 items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md transition-opacity duration-300">
+        <div class="bg-gradient-to-b from-slate-900 to-slate-800 border border-brand-gold/40 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl relative transform scale-100 transition-transform duration-300">
+            <div class="w-16 h-16 rounded-2xl bg-red-600/10 border border-red-500/30 flex items-center justify-center mx-auto mb-4 text-red-500 text-3xl shadow-lg animate-bounce">
+                <i class="fa-brands fa-youtube"></i>
+            </div>
+            <h3 class="text-xl font-extrabold text-white mb-1">Official YouTube Channel!</h3>
+            <p class="text-xs text-brand-gold font-semibold mb-2">Join Free Daily Earnings Community</p>
+            <p class="text-xs font-bold text-emerald-400 mb-4 bg-emerald-950/40 border border-emerald-500/30 py-1.5 px-2 rounded-lg">Subscribe channel and earn free reward 5 dollar instantly</p>
+            
+            <a href="https://www.youtube.com/@freedailyearnings_official?sub_confirmation=1" target="_blank" onclick="confirmSubscription()" class="w-full py-3.5 bg-red-600 hover:bg-red-700 text-white font-extrabold text-sm rounded-xl transition-all shadow-lg flex items-center justify-center space-x-2 btn-glow">
+                <i class="fa-brands fa-youtube text-lg"></i>
+                <span>SUBSCRIBE NOW</span>
+            </a>
+        </div>
+    </div>
+
     <!-- Script Logic -->
     <script>
         let userData = {
-            balance: 107.00,
+            balance: 102.00,
             activityLogs: [
-                { title: "Inviter Joined via Referral", amount: 1.00, status: "Successful", dateTime: "11/5/2026, 04:15:22 PM" },
-                { title: "Inviter Joined via Referral", amount: 1.00, status: "Successful", dateTime: "11/5/2026, 02:10:11 PM" },
-                { title: "Inviter Joined via Referral", amount: 1.00, status: "Successful", dateTime: "11/4/2026, 11:30:00 AM" }
+                { title: "Inviter Joined via Referral", amount: 1.00, status: "Successful", dateTime: "11/07/2026, 09:40:12 AM" },
+                { title: "Inviter Joined via Referral", amount: 1.00, status: "Successful", dateTime: "11/07/2026, 09:15:00 AM" },
+                { title: "Inviter Joined via Referral", amount: 1.00, status: "Successful", dateTime: "11/06/2026, 08:30:45 PM" },
+                { title: "Daily Login Bonus: +$0.10", amount: 0.10, status: "Successful", dateTime: "11/07/2026, 09:55:00 AM" }
             ]
         };
 
         window.onload = function() {
             const hasWithdrawn = localStorage.getItem('app_has_withdrawn') === 'true';
             if (hasWithdrawn) {
-                userData.balance = 7.00;
+                userData.balance = 2.00;
                 const savedLogs = localStorage.getItem('app_activity_logs');
                 if (savedLogs) {
                     userData.activityLogs = JSON.parse(savedLogs);
                 }
             } else {
-                userData.balance = 107.00;
+                userData.balance = 102.00;
+                const savedLogs = localStorage.getItem('app_activity_logs');
+                if (savedLogs) {
+                    userData.activityLogs = JSON.parse(savedLogs);
+                }
             }
+
+            checkAndShowYouTubePopup();
             updateUI();
         };
+
+        function checkAndShowYouTubePopup() {
+            const isSubscribedLocal = localStorage.getItem('user_yt_subscribed') === 'true';
+            const modal = document.getElementById('youtube-modal');
+            if (modal) {
+                if (!isSubscribedLocal) {
+                    modal.style.display = 'flex';
+                } else {
+                    modal.style.display = 'none';
+                }
+            }
+        }
+
+        function confirmSubscription() {
+            const isSubscribedLocal = localStorage.getItem('user_yt_subscribed') === 'true';
+
+            if (!isSubscribedLocal) {
+                localStorage.setItem('user_yt_subscribed', 'true');
+                userData.balance += 5.00;
+
+                const currentDate = new Date().toLocaleDateString();
+                const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+                userData.activityLogs.unshift({
+                    title: "you tub channel subscribtion earning",
+                    amount: 5.00,
+                    status: "Successful",
+                    dateTime: `${currentDate}, ${currentTime}`
+                });
+
+                localStorage.setItem('app_activity_logs', JSON.stringify(userData.activityLogs));
+                updateUI();
+                showToast("Subscription successful! +$5.00 added instantly.", "success");
+            }
+
+            const modal = document.getElementById('youtube-modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
 
         function updateUI() {
             const formattedBalance = `$${userData.balance.toFixed(2)}`;
@@ -258,7 +349,7 @@
             if (userData.balance < 100.00 || hasWithdrawn) {
                 submitBtn.disabled = true;
                 submitBtn.className = "w-full py-3.5 bg-slate-700 text-slate-400 font-extrabold rounded-xl transition duration-300 flex items-center justify-center space-x-2 cursor-not-allowed";
-                document.getElementById('withdraw-btn-text').innerText = "Withdrawal Already Processed ($7.00 Remaining)";
+                document.getElementById('withdraw-btn-text').innerText = `Withdrawal Already Processed ($${userData.balance.toFixed(2)} Remaining)`;
             }
 
             renderActivityLogs();
@@ -279,6 +370,10 @@
             showToast("This feature is currently locked for this session.", "info");
         }
 
+        function setMaxWithdrawal() {
+            document.getElementById('withdraw-amount').value = "100.00";
+        }
+
         function handleWithdrawalSubmit(e) {
             e.preventDefault();
 
@@ -292,19 +387,18 @@
                 return;
             }
 
-            // Immediately deduct $100, leaving $7 balance
-            userData.balance = 7.00;
+            // Deduct $100.00 for withdrawal, remaining balance becomes $2.00
+            userData.balance = 2.00;
             localStorage.setItem('app_has_withdrawn', 'true');
 
             const currentDate = new Date().toLocaleDateString();
             const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-            // Add initial processing log
             const logItem = {
                 title: `Withdrawal Request ($100.00)`,
                 amount: -100.00,
                 status: 'Processing (1m)...',
-                dateTime: `${currentDate} ${currentTime}`
+                dateTime: `${currentDate}, ${currentTime}`
             };
 
             userData.activityLogs.unshift(logItem);
@@ -313,10 +407,10 @@
             updateUI();
             showToast("Withdrawal request submitted! Status: Processing (1m).", "info");
 
-            // Switch to guide/history tab automatically
+            // Automatically switch to Guide / Activity Log tab
             switchTab('instructions');
 
-            // EXACT 1 MINUTE (60 SECONDS) TIMER: CHANGES PROCESSING TO SUCCESSFUL AFTER 1 MINUTE
+            // EXACT 1 MINUTE (60 SECONDS) TIMER TO CHANGE STATUS TO SUCCESSFUL
             setTimeout(() => {
                 logItem.status = 'Withdrawal Successful';
                 logItem.title = 'Withdrawal Successful ($100.00)';
