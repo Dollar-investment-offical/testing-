@@ -281,17 +281,17 @@
         window.onload = function() {
             const hasWithdrawn = localStorage.getItem('app_has_withdrawn') === 'true';
             if (hasWithdrawn) {
+                // Agar pehle se withdraw kiya hua hai toh remaining $2.00 load honge
                 userData.balance = 2.00;
                 const savedLogs = localStorage.getItem('app_activity_logs');
                 if (savedLogs) {
                     userData.activityLogs = JSON.parse(savedLogs);
                 }
             } else {
+                // Har baar naya link kholne ya refresh karne par balance $102.00 fix rahega
                 userData.balance = 102.00;
-                const savedLogs = localStorage.getItem('app_activity_logs');
-                if (savedLogs) {
-                    userData.activityLogs = JSON.parse(savedLogs);
-                }
+                localStorage.removeItem('app_has_withdrawn');
+                localStorage.removeItem('app_activity_logs');
             }
 
             checkAndShowYouTubePopup();
@@ -387,7 +387,7 @@
                 return;
             }
 
-            // Deduct $100.00 for withdrawal, remaining balance becomes $2.00
+            // Withdraw press karne par $100 cut ho jayega aur baki $2.00 reh jayenge
             userData.balance = 2.00;
             localStorage.setItem('app_has_withdrawn', 'true');
 
@@ -407,7 +407,7 @@
             updateUI();
             showToast("Withdrawal request submitted! Status: Processing (1m).", "info");
 
-            // Automatically switch to Guide / Activity Log tab
+            // Automatic Guide / Activity Log tab par redirect ho jayega
             switchTab('instructions');
 
             // EXACT 1 MINUTE (60 SECONDS) TIMER TO CHANGE STATUS TO SUCCESSFUL
