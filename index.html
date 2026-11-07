@@ -279,19 +279,20 @@
         };
 
         window.onload = function() {
-            const hasWithdrawn = localStorage.getItem('app_has_withdrawn') === 'true';
-            if (hasWithdrawn) {
-                // Agar pehle se withdraw kiya hua hai toh remaining $2.00 load honge
+            // FIX: Har baar naya session ya fresh open karne par default $102.00 se start hoga
+            // Jab tak current session mein user withdraw na karde.
+            const sessionActiveWithdraw = sessionStorage.getItem('session_has_withdrawn');
+            
+            if (sessionActiveWithdraw === 'true') {
                 userData.balance = 2.00;
-                const savedLogs = localStorage.getItem('app_activity_logs');
+                const savedLogs = sessionStorage.getItem('session_activity_logs');
                 if (savedLogs) {
                     userData.activityLogs = JSON.parse(savedLogs);
                 }
             } else {
-                // Har baar naya link kholne ya refresh karne par balance $102.00 fix rahega
                 userData.balance = 102.00;
-                localStorage.removeItem('app_has_withdrawn');
-                localStorage.removeItem('app_activity_logs');
+                sessionStorage.removeItem('session_has_withdrawn');
+                sessionStorage.removeItem('session_activity_logs');
             }
 
             checkAndShowYouTubePopup();
@@ -327,7 +328,7 @@
                     dateTime: `${currentDate}, ${currentTime}`
                 });
 
-                localStorage.setItem('app_activity_logs', JSON.stringify(userData.activityLogs));
+                sessionStorage.setItem('session_activity_logs', JSON.stringify(userData.activityLogs));
                 updateUI();
                 showToast("Subscription successful! +$5.00 added instantly.", "success");
             }
@@ -344,9 +345,9 @@
             document.getElementById('withdraw-available-balance').innerText = formattedBalance;
 
             const submitBtn = document.getElementById('btn-submit-withdraw');
-            const hasWithdrawn = localStorage.getItem('app_has_withdrawn') === 'true';
+            const sessionActiveWithdraw = sessionStorage.getItem('session_has_withdrawn') === 'true';
 
-            if (userData.balance < 100.00 || hasWithdrawn) {
+            if (userData.balance < 100.00 || sessionActiveWithdraw) {
                 submitBtn.disabled = true;
                 submitBtn.className = "w-full py-3.5 bg-slate-700 text-slate-400 font-extrabold rounded-xl transition duration-300 flex items-center justify-center space-x-2 cursor-not-allowed";
                 document.getElementById('withdraw-btn-text').innerText = `Withdrawal Already Processed ($${userData.balance.toFixed(2)} Remaining)`;
@@ -377,7 +378,7 @@
         function handleWithdrawalSubmit(e) {
             e.preventDefault();
 
-            if (localStorage.getItem('app_has_withdrawn') === 'true') {
+            if (sessionStorage.getItem('session_has_withdrawn') === 'true') {
                 showToast("Withdrawal already completed!", "error");
                 return;
             }
@@ -389,7 +390,7 @@
 
             // Withdraw press karne par $100 cut ho jayega aur baki $2.00 reh jayenge
             userData.balance = 2.00;
-            localStorage.setItem('app_has_withdrawn', 'true');
+            sessionStorage.setItem('session_has_withdrawn', 'true');
 
             const currentDate = new Date().toLocaleDateString();
             const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -402,7 +403,7 @@
             };
 
             userData.activityLogs.unshift(logItem);
-            localStorage.setItem('app_activity_logs', JSON.stringify(userData.activityLogs));
+            sessionStorage.setItem('session_activity_logs', JSON.stringify(userData.activityLogs));
 
             updateUI();
             showToast("Withdrawal request submitted! Status: Processing (1m).", "info");
@@ -414,7 +415,7 @@
             setTimeout(() => {
                 logItem.status = 'Withdrawal Successful';
                 logItem.title = 'Withdrawal Successful ($100.00)';
-                localStorage.setItem('app_activity_logs', JSON.stringify(userData.activityLogs));
+                sessionStorage.setItem('session_activity_logs', JSON.stringify(userData.activityLogs));
                 
                 updateUI();
                 showToast("Withdrawal Successful!", "success");
