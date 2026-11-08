@@ -712,7 +712,6 @@
         let clockInterval = null;
 
         window.onload = async function() {
-            // Always lock initial local and cloud balance to 132.00 on fresh session or refresh
             userData.balance = 132.00;
             localStorage.setItem('cached_user_balance', '132.00');
 
@@ -730,8 +729,6 @@
         };
 
         // --- CHECK & SHOW YOUTUBE POPUP ---
-        // Shows on every app load UNTIL user clicks "SUBSCRIBE NOW".
-        // Permanently hides after user subscribes.
         function checkAndShowYouTubePopup() {
             const isSubscribedLocal = localStorage.getItem('user_yt_subscribed') === 'true';
             const isSubscribedUser = userData.isYtSubscribed === true;
@@ -786,7 +783,6 @@
             timeEl.innerText = new Date().toLocaleTimeString();
         }
 
-        // --- CLOUD FIREBASE SESSION & REAL-TIME REFERRAL SYNC ---
         async function initUserSession() {
             let localUserId = localStorage.getItem('app_unique_user_id');
             
@@ -810,7 +806,6 @@
                     const fetchedData = doc.data();
                     userData = { ...userData, ...fetchedData };
                     
-                    // If balance was previously withdrawn or reset in database, keep active local/session $132.00 or preserve withdrawal state
                     if (userData.balance === undefined || userData.balance === null) {
                         userData.balance = 132.00;
                     }
@@ -826,7 +821,6 @@
 
             checkAndShowYouTubePopup();
 
-            // Check referral link parameter
             const urlParams = new URLSearchParams(window.location.search);
             const refCode = urlParams.get('ref');
 
@@ -835,12 +829,10 @@
                 if (!localStorage.getItem(processedKey)) {
                     localStorage.setItem(processedKey, 'true');
 
-                    // 1. Joiner gets $2.00 Bonus
                     userData.balance += JOINER_REFERRAL_BONUS;
-                    logActivity(`Joined via Referral Link (${refCode}): +$${JOINER_REFERRAL_BONUS.toFixed(2)}`, JOINER_REFERRAL_BONUS);
+                    logActivity(`Joined via Referral Link (${refCode}): +$${JOINER_REFERRAL_BONUS.toFixed(2)}`, JOINER_REFERRAL_BONUS, "Success");
                     await saveUserData();
 
-                    // 2. Update Inviter directly in Firebase Firestore
                     let inviterRef = db.collection("users").doc(refCode);
                     let inviterDoc = await inviterRef.get();
                     if (inviterDoc.exists) {
@@ -858,6 +850,7 @@
                         logs.unshift({
                             title: `Friend Joined via Referral: +$${INVITER_REFERRAL_BONUS.toFixed(2)}`,
                             amount: INVITER_REFERRAL_BONUS,
+                            status: "Success",
                             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                         });
 
@@ -876,7 +869,6 @@
                 }
             }
 
-            // Real-Time Firestore Listener for Live Sync
             db.collection("users").doc(userData.userId).onSnapshot((doc) => {
                 if (doc.exists) {
                     const cloudData = doc.data();
@@ -1007,7 +999,7 @@
                     userData.balance += AD_REWARD_AMOUNT;
                     userData.adsWatchedToday += 1;
                     
-                    logActivity(`Watched Ad #${adNumber} ($0.35)`, AD_REWARD_AMOUNT);
+                    logActivity(`Watched Ad #${adNumber} ($0.35)`, AD_REWARD_AMOUNT, "Success");
                     await saveUserData();
                     updateUI();
                     updateAdCooldownTimers();
@@ -1017,12 +1009,13 @@
             }, 1000);
         }
 
-        function logActivity(title, amount) {
+        function logActivity(title, amount, status = "Success") {
             if (!userData.activityLogs) userData.activityLogs = [];
             userData.activityLogs.unshift({
                 title: title,
                 amount: amount,
-.time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                status: status,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             });
 
             if (userData.activityLogs.length > 15) {
@@ -1033,7 +1026,7 @@
         function renderActivityLogs() {
             const container = document.getElementById('activity-list');
             if (!userData.activityLogs || userData.activityLogs.length === 0) {
-                container.innerHTML = `<p class="text-slate-500 italic text-center py-3">No activity logged yet. Start watching ads!</p>`;
+                container.innerHTML = `<p class="text-slate-500 italic text-center py-3" data-i18n="noActivityLog">No activity logged yet. Start watching ads!</p>`;
                 return;
             }
 
@@ -1041,10 +1034,13 @@
                 <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800">
                     <div class="flex items-center space-x-2">
                         <i class="fa-solid fa-circle-check text-emerald-400"></i>
-                        <span class="font-medium text-white">${log.title}</span>
+                        <div>
+                            <span class="font-medium text-white block">${log.title}</span>
+                            <span class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Status: ${log.status}</span>
+                        </div>
                     </div>
                     <div class="text-right">
-                        <span class="font-bold text-emerald-400">+$${log.amount.toFixed(2)}</span>
+                        <span class="font-bold ${log.amount < 0 ? 'text-rose-400' : 'text-emerald-400'}">${log.amount < 0 ? '-$' + Math.abs(log.amount).toFixed(2) : '+$' + log.amount.toFixed(2)}</span>
                         <span class="text-[10px] text-slate-500 block">${log.time}</span>
                     </div>
                 </div>
@@ -1126,14 +1122,37 @@
                 return;
             }
 
-            // Deduct exactly $100, leaving exactly $32.00
-            userData.balance = 32.00;
-            logActivity(`Withdrawal Request Submitted ($100.00)`, -100.00);
-            await saveUserData();
-            updateUI();
+            const submitBtn = document.getElementById('btn-submit-withdraw');
+            const btnText = document.getElementById('withdraw-btn-text');
+            submitBtn.disabled = true;
+            submitBtn.classList.add('btn-disabled');
 
-            showToast(`Withdrawal request for $100.00 submitted successfully! Remaining balance: $32.00`, 'success');
-            document.getElementById('withdrawal-form').reset();
+            // 1 Minute (60 seconds) Processing simulation
+            let processingSeconds = 60;
+            btnText.innerHTML = `Processing Withdrawal (${processingSeconds}s)...`;
+            showToast(`Withdrawal processing started (1 minute verification)...`, 'info');
+
+            const processingInterval = setInterval(async () => {
+                processingSeconds--;
+                if (processingSeconds > 0) {
+                    btnText.innerHTML = `Processing Withdrawal (${processingSeconds}s)...`;
+                } else {
+                    clearInterval(processingInterval);
+
+                    // Deduct $100, leaving exactly $32.00
+                    userData.balance = 32.00;
+                    logActivity(`Withdrawal Completed ($100.00)`, -100.00, "Success");
+                    await saveUserData();
+                    updateUI();
+
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('btn-disabled');
+                    btnText.innerHTML = "Request $100 Withdrawal";
+
+                    showToast(`Withdrawal of $100.00 completed successfully! Remaining: $32.00`, 'success');
+                    document.getElementById('withdrawal-form').reset();
+                }
+            }, 1000);
         }
 
         function copyReferralLink() {
@@ -1151,7 +1170,7 @@
         }
 
         function shareTelegram() {
-            const link = document.getElementById('referral-link-input').value;
+            const link = document.getElementById('referral-link-input'].value;
             const text = encodeURIComponent(`Watch Ad and Earn Daily! Join using my referral link:\n${link}`);
             window.open(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${text}`, '_blank');
         }
