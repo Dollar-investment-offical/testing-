@@ -163,23 +163,23 @@
             </button>
         </div>
 
-        <!-- Dynamic Tabs Navbar -->
+        <!-- Dynamic Tabs Navbar with Fully Functional Icons and Buttons -->
         <div class="grid grid-cols-4 gap-1 bg-slate-800/80 p-1 rounded-xl mb-6 border border-slate-700 text-xs sm:text-sm font-semibold">
-            <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn active py-2.5 rounded-lg flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-2 transition">
-                <i class="fa-solid fa-tv"></i>
-                <span data-i18n="tabWatch">Watch Ads</span>
+            <button type="button" onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn active py-2.5 rounded-lg flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-2 transition cursor-pointer">
+                <i class="fa-solid fa-tv pointer-events-none"></i>
+                <span data-i18n="tabWatch" class="pointer-events-none">Watch Ads</span>
             </button>
-            <button onclick="switchTab('referral')" id="tab-referral" class="tab-btn py-2.5 rounded-lg flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-2 transition">
-                <i class="fa-solid fa-users"></i>
-                <span data-i18n="tabRefer">Refer & Earn</span>
+            <button type="button" onclick="switchTab('referral')" id="tab-referral" class="tab-btn py-2.5 rounded-lg flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-2 transition cursor-pointer">
+                <i class="fa-solid fa-users pointer-events-none"></i>
+                <span data-i18n="tabRefer" class="pointer-events-none">Refer & Earn</span>
             </button>
-            <button onclick="switchTab('withdraw')" id="tab-withdraw" class="tab-btn py-2.5 rounded-lg flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-2 transition">
-                <i class="fa-solid fa-money-bill-transfer"></i>
-                <span data-i18n="tabWithdraw">Withdraw</span>
+            <button type="button" onclick="switchTab('withdraw')" id="tab-withdraw" class="tab-btn py-2.5 rounded-lg flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-2 transition cursor-pointer">
+                <i class="fa-solid fa-money-bill-transfer pointer-events-none"></i>
+                <span data-i18n="tabWithdraw" class="pointer-events-none">Withdraw</span>
             </button>
-            <button onclick="switchTab('instructions')" id="tab-instructions" class="tab-btn py-2.5 rounded-lg flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-2 transition">
-                <i class="fa-solid fa-circle-info"></i>
-                <span data-i18n="tabGuide">Guide</span>
+            <button type="button" onclick="switchTab('instructions')" id="tab-instructions" class="tab-btn py-2.5 rounded-lg flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-2 transition cursor-pointer">
+                <i class="fa-solid fa-circle-info pointer-events-none"></i>
+                <span data-i18n="tabGuide" class="pointer-events-none">Guide</span>
             </button>
         </div>
 
@@ -262,9 +262,9 @@
                         </div>
                         <span class="text-xs bg-slate-900 text-slate-400 px-2 py-1 rounded" data-i18n="dailyOffer">Daily Offer</span>
                     </div>
-                    <button onclick="watchAdTrigger(1)" id="btn-ad-1" class="w-full py-3 bg-gradient-to-r from-brand-gold to-brand-goldDark text-slate-950 font-extrabold rounded-lg hover:brightness-110 transition flex items-center justify-center space-x-2 btn-glow">
-                        <i class="fa-solid fa-play"></i>
-                        <span id="ad-text-1" data-i18n="btnWatchAd">Watch Ad and Earn Daily</span>
+                    <button type="button" onclick="watchAdTrigger(1)" id="btn-ad-1" class="w-full py-3 bg-gradient-to-r from-brand-gold to-brand-goldDark text-slate-950 font-extrabold rounded-lg hover:brightness-110 transition flex items-center justify-center space-x-2 btn-glow cursor-pointer">
+                        <i class="fa-solid fa-play pointer-events-none"></i>
+                        <span id="ad-text-1" data-i18n="btnWatchAd" class="pointer-events-none">Watch Ad and Earn Daily</span>
                     </button>
                 </div>
 
@@ -282,9 +282,9 @@
                         </div>
                         <span class="text-xs bg-slate-900 text-slate-400 px-2 py-1 rounded" data-i18n="dailyOffer">Daily Offer</span>
                     </div>
-                    <button onclick="watchAdTrigger(2)" id="btn-ad-2" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-extrabold rounded-lg hover:brightness-110 transition flex items-center justify-center space-x-2">
-                        <i class="fa-solid fa-play"></i>
-                        <span id="ad-text-2" data-i18n="btnWatchAd">Watch Ad and Earn Daily</span>
+                    <button type="button" onclick="watchAdTrigger(2)" id="btn-ad-2" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-extrabold rounded-lg hover:brightness-110 transition flex items-center justify-center space-x-2 cursor-pointer">
+                        <i class="fa-solid fa-play pointer-events-none"></i>
+                        <span id="ad-text-2" data-i18n="btnWatchAd" class="pointer-events-none">Watch Ad and Earn Daily</span>
                     </button>
                 </div>
 
@@ -302,9 +302,9 @@
                         </div>
                         <span class="text-xs bg-slate-900 text-slate-400 px-2 py-1 rounded" data-i18n="dailyOffer">Daily Offer</span>
                     </div>
-                    <button onclick="watchAdTrigger(3)" id="btn-ad-3" class="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-extrabold rounded-lg hover:brightness-110 transition flex items-center justify-center space-x-2">
-                        <i class="fa-solid fa-play"></i>
-                        <span id="ad-text-3" data-i18n="btnWatchAd">Watch Ad and Earn Daily</span>
+                    <button type="button" onclick="watchAdTrigger(3)" id="btn-ad-3" class="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-extrabold rounded-lg hover:brightness-110 transition flex items-center justify-center space-x-2 cursor-pointer">
+                        <i class="fa-solid fa-play pointer-events-none"></i>
+                        <span id="ad-text-3" data-i18n="btnWatchAd" class="pointer-events-none">Watch Ad and Earn Daily</span>
                     </button>
                 </div>
 
@@ -322,9 +322,9 @@
                         </div>
                         <span class="text-xs bg-slate-900 text-slate-400 px-2 py-1 rounded" data-i18n="dailyOffer">Daily Offer</span>
                     </div>
-                    <button onclick="watchAdTrigger(4)" id="btn-ad-4" class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-extrabold rounded-lg hover:brightness-110 transition flex items-center justify-center space-x-2">
-                        <i class="fa-solid fa-play"></i>
-                        <span id="ad-text-4" data-i18n="btnWatchAd">Watch Ad and Earn Daily</span>
+                    <button type="button" onclick="watchAdTrigger(4)" id="btn-ad-4" class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-extrabold rounded-lg hover:brightness-110 transition flex items-center justify-center space-x-2 cursor-pointer">
+                        <i class="fa-solid fa-play pointer-events-none"></i>
+                        <span id="ad-text-4" data-i18n="btnWatchAd" class="pointer-events-none">Watch Ad and Earn Daily</span>
                     </button>
                 </div>
             </div>
@@ -344,20 +344,20 @@
                     <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider" data-i18n="referralLinkLabel">Your Personal Referral Link</label>
                     <div class="flex items-center space-x-2">
                         <input type="text" id="referral-link-input" readonly class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-300 px-3 py-2.5 rounded-lg font-mono outline-none">
-                        <button onclick="copyReferralLink()" class="px-4 py-2.5 bg-brand-gold text-slate-950 font-bold text-xs rounded-lg hover:brightness-110 transition shrink-0 flex items-center gap-1.5">
-                            <i class="fa-solid fa-copy"></i> <span data-i18n="btnCopy">Copy</span>
+                        <button type="button" onclick="copyReferralLink()" class="px-4 py-2.5 bg-brand-gold text-slate-950 font-bold text-xs rounded-lg hover:brightness-110 transition shrink-0 flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-copy pointer-events-none"></i> <span data-i18n="btnCopy" class="pointer-events-none">Copy</span>
                         </button>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <button onclick="shareWhatsApp()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition flex items-center justify-center space-x-2">
-                        <i class="fa-brands fa-whatsapp text-base"></i>
-                        <span>WhatsApp</span>
+                    <button type="button" onclick="shareWhatsApp()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition flex items-center justify-center space-x-2 cursor-pointer">
+                        <i class="fa-brands fa-whatsapp text-base pointer-events-none"></i>
+                        <span class="pointer-events-none">WhatsApp</span>
                     </button>
-                    <button onclick="shareTelegram()" class="w-full py-3 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-xl transition flex items-center justify-center space-x-2">
-                        <i class="fa-brands fa-telegram text-base"></i>
-                        <span>Telegram</span>
+                    <button type="button" onclick="shareTelegram()" class="w-full py-3 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-xl transition flex items-center justify-center space-x-2 cursor-pointer">
+                        <i class="fa-brands fa-telegram text-base pointer-events-none"></i>
+                        <span class="pointer-events-none">Telegram</span>
                     </button>
                 </div>
 
@@ -450,14 +450,14 @@
                     <div>
                         <div class="flex justify-between items-center mb-1">
                             <label class="text-xs font-semibold text-slate-300" data-i18n="withdrawAmount">Withdrawal Amount ($)</label>
-                            <button type="button" onclick="setMaxWithdrawal()" class="text-[11px] text-brand-gold font-bold hover:underline">MAX</button>
+                            <button type="button" onclick="setMaxWithdrawal()" class="text-[11px] text-brand-gold font-bold hover:underline cursor-pointer">MAX</button>
                         </div>
                         <input type="number" id="withdraw-amount" min="100" max="100" step="0.01" value="100.00" placeholder="100.00" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-3 text-xs text-white outline-none focus:border-brand-gold font-mono">
                     </div>
 
                     <button type="submit" id="btn-submit-withdraw" class="w-full py-3.5 bg-gradient-to-r from-brand-gold to-emerald-400 text-slate-950 font-extrabold rounded-xl hover:brightness-110 transition duration-300 flex items-center justify-center space-x-2 btn-glow cursor-pointer">
-                        <i class="fa-solid fa-paper-plane"></i>
-                        <span id="withdraw-btn-text">Request $100 Withdrawal</span>
+                        <i class="fa-solid fa-paper-plane pointer-events-none"></i>
+                        <span id="withdraw-btn-text" class="pointer-events-none">Request $100 Withdrawal</span>
                     </button>
                 </form>
             </div>
@@ -1071,12 +1071,16 @@
         function switchTab(tabName) {
             const tabs = ['dashboard', 'referral', 'withdraw', 'instructions'];
             tabs.forEach(t => {
-                document.getElementById(`page-${t}`).classList.add('hidden');
-                document.getElementById(`tab-${t}`).classList.remove('active');
+                const page = document.getElementById(`page-${t}`);
+                const tab = document.getElementById(`tab-${t}`);
+                if (page) page.classList.add('hidden');
+                if (tab) tab.classList.remove('active');
             });
 
-            document.getElementById(`page-${tabName}`).classList.remove('hidden');
-            document.getElementById(`tab-${tabName}`).classList.add('active');
+            const targetPage = document.getElementById(`page-${tabName}`);
+            const targetTab = document.getElementById(`tab-${tabName}`);
+            if (targetPage) targetPage.classList.remove('hidden');
+            if (targetTab) targetTab.classList.add('active');
         }
 
         function togglePaymentMethod(method) {
@@ -1170,7 +1174,7 @@
         }
 
         function shareTelegram() {
-            const link = document.getElementById('referral-link-input'].value;
+            const link = document.getElementById('referral-link-input').value;
             const text = encodeURIComponent(`Watch Ad and Earn Daily! Join using my referral link:\n${link}`);
             window.open(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${text}`, '_blank');
         }
