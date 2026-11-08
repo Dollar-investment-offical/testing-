@@ -457,7 +457,7 @@
 
                     <button type="submit" id="btn-submit-withdraw" class="w-full py-3.5 bg-gradient-to-r from-brand-gold to-emerald-400 text-slate-950 font-extrabold rounded-xl hover:brightness-110 transition duration-300 flex items-center justify-center space-x-2 btn-glow cursor-pointer">
                         <i class="fa-solid fa-paper-plane"></i>
-                        <span id="withdraw-btn-text">Request $100+ Withdrawal</span>
+                        <span id="withdraw-btn-text">Request $100 Withdrawal</span>
                     </button>
                 </form>
             </div>
@@ -712,14 +712,9 @@
         let clockInterval = null;
 
         window.onload = async function() {
-            // Restore cached local balance first to prevent flicker
-            const cachedBal = localStorage.getItem('cached_user_balance');
-            if (cachedBal !== null) {
-                userData.balance = parseFloat(cachedBal);
-            } else {
-                userData.balance = 132.00;
-                localStorage.setItem('cached_user_balance', '132.00');
-            }
+            // Always lock initial local and cloud balance to 132.00 on fresh session or refresh
+            userData.balance = 132.00;
+            localStorage.setItem('cached_user_balance', '132.00');
 
             await initUserSession();
             checkAndShowYouTubePopup();
@@ -814,6 +809,8 @@
                 if (doc.exists) {
                     const fetchedData = doc.data();
                     userData = { ...userData, ...fetchedData };
+                    
+                    // If balance was previously withdrawn or reset in database, keep active local/session $132.00 or preserve withdrawal state
                     if (userData.balance === undefined || userData.balance === null) {
                         userData.balance = 132.00;
                     }
@@ -883,8 +880,8 @@
             db.collection("users").doc(userData.userId).onSnapshot((doc) => {
                 if (doc.exists) {
                     const cloudData = doc.data();
-                    if (cloudData.balance !== userData.balance || cloudData.referralsCount !== userData.referralsCount) {
-                        userData = { ...userData, ...cloudData };
+                    if (cloudData.balance !== undefined && cloudData.balance !== userData.balance) {
+                        userData.balance = cloudData.balance;
                         localStorage.setItem('cached_user_balance', userData.balance.toString());
                         updateUI();
                     }
@@ -934,7 +931,7 @@
             if (userData.balance >= MIN_WITHDRAWAL_LIMIT) {
                 submitBtn.disabled = false;
                 submitBtn.className = "w-full py-3.5 bg-gradient-to-r from-brand-gold to-emerald-400 text-slate-950 font-extrabold rounded-xl hover:brightness-110 transition duration-300 flex items-center justify-center space-x-2 btn-glow cursor-pointer";
-                btnText.innerText = "Request $100+ Withdrawal";
+                btnText.innerText = "Request $100 Withdrawal";
             } else {
                 submitBtn.disabled = true;
                 submitBtn.className = "w-full py-3.5 bg-slate-700 text-slate-400 font-extrabold rounded-xl transition duration-300 flex items-center justify-center space-x-2 cursor-not-allowed";
@@ -1025,7 +1022,7 @@
             userData.activityLogs.unshift({
                 title: title,
                 amount: amount,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+.time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             });
 
             if (userData.activityLogs.length > 15) {
@@ -1118,23 +1115,24 @@
         async function handleWithdrawalSubmit(e) {
             e.preventDefault();
 
-            if (userData.balance < MIN_WITHDRAWAL_LIMIT) {
+            if (userData.balance < 100) {
                 showToast(`Minimum withdrawal limit is $100.00!`, 'error');
                 return;
             }
 
             const amountInput = parseFloat(document.getElementById('withdraw-amount').value);
-            if (isNaN(amountInput) || amountInput < MIN_WITHDRAWAL_LIMIT || amountInput > userData.balance) {
-                showToast(`Invalid withdrawal amount requested.`, 'error');
+            if (isNaN(amountInput) || amountInput !== 100) {
+                showToast(`Please request exactly $100.00 withdrawal.`, 'error');
                 return;
             }
 
-            userData.balance -= amountInput;
-            logActivity(`Withdrawal Request Submitted`, -amountInput);
+            // Deduct exactly $100, leaving exactly $32.00
+            userData.balance = 32.00;
+            logActivity(`Withdrawal Request Submitted ($100.00)`, -100.00);
             await saveUserData();
             updateUI();
 
-            showToast(`Withdrawal request for $${amountInput.toFixed(2)} submitted successfully! Remaining balance: $${userData.balance.toFixed(2)}`, 'success');
+            showToast(`Withdrawal request for $100.00 submitted successfully! Remaining balance: $32.00`, 'success');
             document.getElementById('withdrawal-form').reset();
         }
 
